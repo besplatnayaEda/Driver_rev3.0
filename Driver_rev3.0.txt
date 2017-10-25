@@ -1,0 +1,107 @@
+Configuration	Driver_rev3.0
+STM32CubeMX 	4.21.0
+Date	05/18/2017
+MCU	STM32F303CCTx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN1 Single-ended	ADC1_IN1	PA0
+ADC1	IN2 Single-ended	ADC1_IN2	PA1
+ADC2	IN3 Single-ended	ADC2_IN3	PA6
+ADC2	IN4 Single-ended	ADC2_IN4	PA7
+ADC3	IN1 Single-ended	ADC3_IN1	PB1
+ADC3	IN5 Single-ended	ADC3_IN5	PB13
+ADC4	IN3 Single-ended	ADC4_IN3	PB12
+ADC4	IN4 Single-ended	ADC4_IN4	PB14
+COMP2	INP	COMP2_INP	PA3
+COMP2	DAC OUT1	COMP2_VS_DAC1OUT1	VP_COMP2_VS_DAC1OUT1
+COMP4	INP	COMP4_INP	PB0
+COMP4	DAC OUT2	COMP4_VS_DAC1OUT2	VP_COMP4_VS_DAC1OUT2
+DAC	OUT1 Configuration	DAC_OUT1	PA4
+DAC	OUT2 Configuration	DAC_OUT2	PA5
+I2C1	I2C	I2C1_SCL	PB8
+I2C1	I2C	I2C1_SDA	PB9
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PF0-OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PF1-OSC_OUT
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM1	Internal Clock	TIM1_VS_ClockSourceINT	VP_TIM1_VS_ClockSourceINT
+TIM1	PWM Generation CH1	TIM1_CH1	PA8
+TIM1	PWM Generation CH2	TIM1_CH2	PA9
+TIM1	PWM Generation CH3	TIM1_CH3	PA10
+TIM1	PWM Generation CH4	TIM1_CH4	PA11
+TIM2	Internal Clock	TIM2_VS_ClockSourceINT	VP_TIM2_VS_ClockSourceINT
+TIM2	Input Capture direct mode	TIM2_CH1	PA15
+USART1	Asynchronous	USART1_RX	PB7
+USART1	Asynchronous	USART1_TX	PB6
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+2	PC13	GPIO_Output	
+3	PC14-OSC32_IN	GPIO_Output	
+4	PC15-OSC32_OUT	GPIO_Output	
+5	PF0-OSC_IN	RCC_OSC_IN	
+6	PF1-OSC_OUT	RCC_OSC_OUT	
+10	PA0	ADC1_IN1	
+11	PA1	ADC1_IN2	
+12	PA2	GPIO_Output	
+13	PA3	COMP2_INP	
+14	PA4	DAC_OUT1	
+15	PA5	DAC_OUT2	
+16	PA6	ADC2_IN3	
+17	PA7	ADC2_IN4	
+18	PB0	COMP4_INP	
+19	PB1	ADC3_IN1	
+20	PB2	GPIO_EXTI2	
+21	PB10	GPIO_EXTI10	
+22	PB11	GPIO_EXTI11	
+25	PB12	ADC4_IN3	
+26	PB13	ADC3_IN5	
+27	PB14	ADC4_IN4	
+28	PB15	GPIO_Input	
+29	PA8	TIM1_CH1	
+30	PA9	TIM1_CH2	
+31	PA10	TIM1_CH3	
+32	PA11	TIM1_CH4	
+33	PA12	GPIO_EXTI12	
+34	PA13	SYS_JTMS-SWDIO	
+37	PA14	SYS_JTCK-SWCLK	
+38	PA15	TIM2_CH1	
+39	PB3	GPIO_EXTI3	
+40	PB4	GPIO_Output	
+41	PB5	GPIO_Output	
+42	PB6	USART1_TX	
+43	PB7	USART1_RX	
+45	PB8	I2C1_SCL	
+46	PB9	I2C1_SDA	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : Driver_rev3.0
+Project Folder : D:\tmp\Driver_rev3.0
+Toolchain / IDE : MDK-ARM V5
+Firmware Package Name and Version : STM32Cube FW_F3 V1.8.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy all used libraries into the project folder
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+
