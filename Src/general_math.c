@@ -1349,7 +1349,7 @@ void GetVoltage(void)
 				U3rise1 = (ADC3buff)*Vsupp/Effbit-mean3;
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
 			
-			/*
+			///*									//	проверка антенн на целостность во время передачи
 			if(SETUP.ant[0] == 1)
 				{
 					if(fabs(U1rise1) < BREAK)
@@ -1422,7 +1422,7 @@ void GetVoltage(void)
 					STATUS.ant_break[3] = 0;
 					STATUS.ant_fuse[3] = 0;
 				}
-			*/
+			//*/
 				I1 = CalculateI(U1rise1);
 				I2 = CalculateI(U2rise1);
 				I3 = CalculateI(U3rise1);
@@ -1511,7 +1511,7 @@ void GetVoltage(void)
 				U3fall1 -= mean3;
 				U4fall1 -= mean4;
 			
-			/*
+			///*													//	проверка антенн на целостность во время передачи
 			if(SETUP.ant[0] == 1)
 				{
 					if(fabs(U1rise2) < BREAK)
@@ -1586,7 +1586,7 @@ void GetVoltage(void)
 					STATUS.ant_fuse[3] = 0;
 				}
 			
-				*/
+				//*/										//	проверка антенн на целостность во время передачи
 			
 				I1 = CalculateI(U1rise2);
 				I2 = CalculateI(U2rise2);
@@ -1725,6 +1725,17 @@ void GetVoltage(void)
 	
 	void FormSTATUS(void)
 	{
+		
+		//	проверка антенн на целостность во время передачи
+		// остановка передачи при аварии
+		
+		for(uint8_t i = 0; i < 4; i++)
+		{
+			if(STATUS.ant_break[i])
+				StopPWM();
+			if(STATUS.ant_fuse[i])
+				StopPWM();
+		}
 		
 		if(SETUP.ant[0] == 1)
 		{

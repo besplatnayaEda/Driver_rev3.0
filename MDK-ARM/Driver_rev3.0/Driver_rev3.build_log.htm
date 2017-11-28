@@ -22,16 +22,20 @@ Dialog DLL:      TCM.DLL V1.14.14.0
  
 <h2>Project:</h2>
 C:\Users\KAArtemev\Desktop\Прошивки\Интеллектуальный драйвер\Driver_rev3.0\MDK-ARM\Driver_rev3.0.uvprojx
-Project File Date:  09/20/2017
+Project File Date:  10/15/2017
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 3 (build 300)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Driver_rev3.0'
-compiling stm32f3xx_it.c...
+compiling main.c...
+compiling general_math.c...
+..\Src\general_math.c(2242): warning:  #550-D: variable "Status" was set but never used
+  	HAL_StatusTypeDef Status;
+..\Src\general_math.c: 1 warning, 0 errors
 linking...
-Program Size: Code=37450 RO-data=866 RW-data=448 ZI-data=3544  
+Program Size: Code=38302 RO-data=866 RW-data=448 ZI-data=3544  
 FromELF: creating hex file...
-".\Driver_rev3.0\Driver_rev3.0" - 0 Error(s), 0 Warning(s).
+".\Driver_rev3.0\Driver_rev3.0" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 

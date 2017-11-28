@@ -287,11 +287,11 @@ int main(void)
 	//C4 = 8.55e-6f;
 	
 	#ifdef DEBUG
-		f1 = 984;
-		f2 = 966;
-		BR = 2;
-		CodeMode = 0;
-		Parsing(1020,0);
+		f1 = 769;
+		f2 = 719;
+		BR = 2.9;
+		CodeMode = 2;
+		Parsing(55,0);
 	#endif
 	
 	UART2_RecvType = UART2_RECV_CMD;
