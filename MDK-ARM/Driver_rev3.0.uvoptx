@@ -168,14 +168,14 @@
           <Type>0</Type>
           <LineNumber>313</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134245994</Address>
+          <Address>134245958</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\stm32f3xx_it.c</Filename>
+          <Filename>D:\exchange\Driver_rev3.0 - РєРѕРїРёСЏ\Src\stm32f3xx_it.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Driver_rev3\../Src/stm32f3xx_it.c\313</Expression>
         </Bp>
@@ -184,21 +184,21 @@
           <Type>0</Type>
           <LineNumber>1957</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134238206</Address>
+          <Address>134238030</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\general_math.c</Filename>
+          <Filename>D:\exchange\Driver_rev3.0 - РєРѕРїРёСЏ\Src\general_math.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Driver_rev3\../Src/general_math.c\1957</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>716</LineNumber>
+          <LineNumber>722</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -214,7 +214,7 @@
         <Bp>
           <Number>3</Number>
           <Type>0</Type>
-          <LineNumber>957</LineNumber>
+          <LineNumber>963</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -230,7 +230,7 @@
         <Bp>
           <Number>4</Number>
           <Type>0</Type>
-          <LineNumber>1114</LineNumber>
+          <LineNumber>1120</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -246,7 +246,7 @@
         <Bp>
           <Number>5</Number>
           <Type>0</Type>
-          <LineNumber>1117</LineNumber>
+          <LineNumber>1123</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -262,7 +262,7 @@
         <Bp>
           <Number>6</Number>
           <Type>0</Type>
-          <LineNumber>1122</LineNumber>
+          <LineNumber>1128</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -278,7 +278,7 @@
         <Bp>
           <Number>7</Number>
           <Type>0</Type>
-          <LineNumber>1138</LineNumber>
+          <LineNumber>1144</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -294,7 +294,7 @@
         <Bp>
           <Number>8</Number>
           <Type>0</Type>
-          <LineNumber>1141</LineNumber>
+          <LineNumber>1147</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -310,7 +310,7 @@
         <Bp>
           <Number>9</Number>
           <Type>0</Type>
-          <LineNumber>1268</LineNumber>
+          <LineNumber>1274</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -326,7 +326,7 @@
         <Bp>
           <Number>10</Number>
           <Type>0</Type>
-          <LineNumber>1271</LineNumber>
+          <LineNumber>1277</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -342,7 +342,7 @@
         <Bp>
           <Number>11</Number>
           <Type>0</Type>
-          <LineNumber>1272</LineNumber>
+          <LineNumber>1278</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -358,7 +358,7 @@
         <Bp>
           <Number>12</Number>
           <Type>0</Type>
-          <LineNumber>1283</LineNumber>
+          <LineNumber>1289</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -374,7 +374,7 @@
         <Bp>
           <Number>13</Number>
           <Type>0</Type>
-          <LineNumber>1286</LineNumber>
+          <LineNumber>1292</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -390,7 +390,7 @@
         <Bp>
           <Number>14</Number>
           <Type>0</Type>
-          <LineNumber>1288</LineNumber>
+          <LineNumber>1294</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -406,7 +406,7 @@
         <Bp>
           <Number>15</Number>
           <Type>0</Type>
-          <LineNumber>1290</LineNumber>
+          <LineNumber>1296</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -422,7 +422,7 @@
         <Bp>
           <Number>16</Number>
           <Type>0</Type>
-          <LineNumber>1291</LineNumber>
+          <LineNumber>1297</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -432,22 +432,6 @@
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
           <Filename>..\Src\general_math.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>17</Number>
-          <Type>0</Type>
-          <LineNumber>452</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>../Src/stm32f3xx_it.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
@@ -839,24 +823,6 @@
       <Lin2Executable></Lin2Executable>
       <Lin2ConfigFile></Lin2ConfigFile>
       <bLin2Auto>0</bLin2Auto>
-      <SystemViewers>
-        <Entry>
-          <Name>System Viewer\ADC2</Name>
-          <WinId>35901</WinId>
-        </Entry>
-        <Entry>
-          <Name>System Viewer\TIM2</Name>
-          <WinId>35902</WinId>
-        </Entry>
-        <Entry>
-          <Name>System Viewer\TIM6</Name>
-          <WinId>35905</WinId>
-        </Entry>
-        <Entry>
-          <Name>System Viewer\TIM7</Name>
-          <WinId>35898</WinId>
-        </Entry>
-      </SystemViewers>
     </TargetOption>
   </Target>
 

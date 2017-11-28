@@ -574,7 +574,7 @@ void SendAlarm(uint32_t data)
 				
 				diag = 0;
 		
-				TIM6 -> ARR = SystemCoreClock/(TIM6->PSC+1);					// установка скорости передачи
+				TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
 				TIM6 -> CNT = 0;
 				if(def == 0)
@@ -588,9 +588,15 @@ void SendAlarm(uint32_t data)
 	{
 			STATUS.repeatcur = 0;
 			STATUS.bitnum = 0;
-				
-
-		
+#ifdef ALARM_FFFF	
+			if(psk == (SystemCoreClock/((TIM1->PSC+1)*4*f1)))
+				psk = SystemCoreClock/((TIM1->PSC+1)*4*f2);
+			else
+				psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
+			
+			TimingCalc();
+			SetTiming();
+#endif
 		// остановка/запуск шим
 		switch(State)
 		{
