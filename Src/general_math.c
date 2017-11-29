@@ -298,6 +298,7 @@ void StartPWM(void)
 			n = 0;				// счет импульсов плавного старта
 			n_stop = 0;			
 			TIM1 -> CNT = 0;
+			TIM1 -> SR &= TIM_SR_UIF;
 			TIM1 -> SR &= TIM_SR_CC1IF;
 			TIM1 -> SR &= TIM_SR_CC2IF;
 			TIM1 -> SR &= TIM_SR_CC3IF;
@@ -311,6 +312,7 @@ void StartPWM(void)
 				
 		
 			TIM1 -> BDTR |= ~TIM_BREAK_DISABLE;							// включение выходов шим
+//			TIM1 -> BDTR |= TIM_BDTR_MOE;
 			HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);				// включение светодиода передачи
 			
 			
@@ -618,6 +620,12 @@ void SendAlarm(uint32_t data)
 
 		
 	}
+	
+	// остановка оповещения
+void StopAlarm(void)
+{
+	
+}
 		// генератор 
 void Generator(void)
 {
@@ -1737,9 +1745,9 @@ void GetVoltage(void)
 		
 		for(uint8_t i = 0; i < 4; i++)
 		{
-			if(STATUS.ant_break[i])
-				StopPWM();
-			if(STATUS.ant_fuse[i])
+//			if(STATUS.ant_break[i])
+//				StopPWM();											
+			if(STATUS.ant_fuse[i])				// если кз антенны, то остановка передачи
 				StopPWM();
 		}
 		
@@ -2032,9 +2040,34 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			break;
-		case U2CT_ALARMMSG:
-			SETUP.alarmmsg = UART2RecvData.value.i;
-			tmpComand = SETUP.alarmmsg;
+		case U2CT_ALARM_MSG:
+			SETUP.alarm_msg = UART2RecvData.value.i;
+			if(SETUP.alarm_msg)
+			{
+				if(STATUS.trans_state == 0)																				// запуск передачи
+				{
+					if(Mode == MAIN)
+						DiagnSendAlarm();
+				}
+			}
+			else
+			{
+				StopAlarm();
+			}
+			
+			break;
+		case U2CT_TEST_TAG:
+			SETUP.test_tag = UART2RecvData.value.i;
+			
+			if(STATUS.trans_state == 0)																				// запуск передачи
+		{
+			if(Mode == MAIN)
+				__nop;//DiagnSendAlarm();								
+		}
+			break;
+		case U2CT_COMMAND:
+			SETUP.command = UART2RecvData.value.i;
+			tmpComand = SETUP.command;
 			if(STATUS.trans_state == 0)																				// запуск передачи
 		{
 			if(Mode == MAIN)
@@ -2245,10 +2278,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	void SaveSetting(void)
 {
 	FLASH_EraseInitTypeDef Flash;
-	HAL_StatusTypeDef Status;
+//	HAL_StatusTypeDef Status;
 	uint8_t data = 0;
 	uint32_t err;
-	Status = HAL_FLASH_Unlock();
+	HAL_FLASH_Unlock();
 	
 	Flash.PageAddress = ADR_START;
 	Flash.TypeErase = FLASH_TYPEERASE_PAGES;
@@ -2258,62 +2291,62 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	//FLASH_PageErase(ADR_START);
 
     // частота 1
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START, *(uint32_t *)&f1);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START, *(uint32_t *)&f1);
 		// частота 2
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+4, *(uint32_t *)&f2);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+4, *(uint32_t *)&f2);
       // скорость передачи 
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+8, *(uint32_t *)&BR);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+8, *(uint32_t *)&BR);
       // дедтайм
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+12, *(uint32_t *)&DeathTime_u);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+12, *(uint32_t *)&DeathTime_u);
       // перекрытие
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+16, *(uint32_t *)&Overlap_u);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+16, *(uint32_t *)&Overlap_u);
       // ограниечение длительности
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+20, *(uint32_t *)&TimeLimit_u);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+20, *(uint32_t *)&TimeLimit_u);
       // период проверки антенн
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+24, *(uint32_t *)&DiagTime);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+24, *(uint32_t *)&DiagTime);
       // ограничение тока
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+28, *(uint32_t *)&data);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+28, *(uint32_t *)&data);
       // количество срабатываний защиты по току
-      Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+32, *(uint32_t *)&defcnt);
+      HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+32, *(uint32_t *)&defcnt);
       // емкость в антенне1
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+36, *(uint32_t *)&C1);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+36, *(uint32_t *)&C1);
 			// емкость в антенне2
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+40, *(uint32_t *)&C2);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+40, *(uint32_t *)&C2);
 			// емкость в антенне3
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+44, *(uint32_t *)&C3);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+44, *(uint32_t *)&C3);
 			// емкость в антенне4
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+48, *(uint32_t *)&C4);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+48, *(uint32_t *)&C4);
 			// число повторов передачи
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+52, *(uint32_t *)&RepeatNum);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+52, *(uint32_t *)&RepeatNum);
 			// режим работы основной/внешний
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+56, *(uint32_t *)&Mode);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+56, *(uint32_t *)&Mode);
 			// плавный запуск
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+60, *(uint32_t *)&SoftStart);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+60, *(uint32_t *)&SoftStart);
 			// режим ограничения тока вкл/выкл
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+64, *(uint32_t *)&data);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+64, *(uint32_t *)&data);
 			// режим контроля автоматически, вручную
 			// емкость вкл/выкл
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+68, *(uint32_t *)&SETUP.cap);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+68, *(uint32_t *)&SETUP.cap);
 			// модуляция чмн/фмн
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+72, *(uint32_t *)&data);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+72, *(uint32_t *)&data);
 			// кодировка
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+76, *(uint32_t *)&CodeMode);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+76, *(uint32_t *)&CodeMode);
 			// перегрузка по току авто/ одноразовая
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+80, *(uint32_t *)&data);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+80, *(uint32_t *)&data);
 			// напряжение питания
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+84, *(uint32_t *)&Us);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+84, *(uint32_t *)&Us);
 			// напряжение антенны1
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+88, *(uint32_t *)&Us1);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+88, *(uint32_t *)&Us1);
 			// напряжение антенны2
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+92, *(uint32_t *)&Us2);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+92, *(uint32_t *)&Us2);
 			// напряжение антенны3
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+96, *(uint32_t *)&Us3);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+96, *(uint32_t *)&Us3);
 			// напряжение антенне4
-			Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+100, *(uint32_t *)&Us4);
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, ADR_START+100, *(uint32_t *)&Us4);
 					
 
 			
-	Status = HAL_FLASH_Lock();
+	HAL_FLASH_Lock();
 	
 	
 	

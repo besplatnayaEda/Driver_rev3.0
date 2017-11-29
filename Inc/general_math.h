@@ -123,7 +123,10 @@ typedef struct SettingParametrs {
 	uint8_t	 codemode;		//
 	uint8_t	 overloadmode;
 	uint8_t	 suppvoltage;	//
-	uint8_t	 alarmmsg;		//
+	uint8_t alarm_msg;
+	uint8_t test_tag;
+	uint8_t command;
+	
 	uint8_t	 ant[4];
 	uint8_t	 antlevel[4];
 	uint8_t	 supplevel;		//
@@ -169,7 +172,9 @@ typedef enum {CT_UNDEFINED = -1,
 							U2CT_CODEMODE,						// кодировка
               U2CT_OVERLOAD_MODE,				// режим перегрузки по току автоматический/ручной
 							U2CT_SUPPVOLTAGE,					// напряжение питания
-							U2CT_ALARMMSG,						// запуск аварийного оповещения
+							U2CT_ALARM_MSG,						// запуск аварийного оповещения
+							U2CT_TEST_TAG,						// проверка тагов
+							U2CT_COMMAND,							// команда для радиуса
               U2CT_ANTENNA_1,						// подключение антенны 1
               U2CT_ANTENNA_2,						// подключение антенны 2
               U2CT_ANTENNA_3,						// подключение антенны 3
@@ -262,47 +267,57 @@ typedef enum {UART2_RECV_CMD, UART2_RECV_VALUE} UART2Recv_t;
 
 
 
-void TimingCalc(void);
-void SetTiming(void);
-void StartPWM(void);
-void StopPWM(void);
+void TimingCalc(void);					// расчет длительностей управляющих импульсов
+void SetTiming(void);						// установка регистров
+void StartPWM(void);						// запуск шим
+void StopPWM(void);							// остановка передачи
 
-void CommandReply(Cmd_Type cmd, const char fmt, ...);
-void SendPacketUART(void);
+void CommandReply(Cmd_Type cmd, const char fmt, ...);		// отправка команды по уарт
+void SendPacketUART(void);															// отправка статуса
 
 
-void FormSTATUS(void);
+void FormSTATUS(void);																	// формирование статуса 
 
-float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);
+float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);	//
 
-void SendData(uint32_t data);
+// вызов метки
+void SendData(uint32_t data);						
 void ProcData(void);
 void DiagnSendData(void);
 
+// аварийный вызов
 void SendAlarm(uint32_t data);
 void ProcAlarm(void);
 void DiagnSendAlarm(void);
+void StopAlarm(void);
 
+// вызов команды
 void SendComand(uint8_t comand);
 void DiagnSendComand(void);
 
+// вызов команды с номером
 void SendComandnData(uint32_t data, uint8_t comand);
 void DiagnSendComandnData(void);
 
+// парсинг номера в массив 
 void Parsing(uint32_t data, uint8_t command);
 
+// расчет параметров
 float CalculateL(float Ur, float Usupp);
 float CalculateI(float Ur);
 float CalculateR(float Ur, float Uf, float Cap, float L);
 float CalculateP(float I, float R);
 float CalculateC(float L);
 
-
+// работа с внешним генератором
 void StartExternPWM(void);
 void ExternPWM(void);
+
+// обработка измерений ацп
 void GetVoltage(void);
 void CorrectTIM(void);
 
+// проведение диагностики антенн
 void Diag(void);
 void ProcDiag(void);
 
@@ -310,8 +325,13 @@ void ProcDiag(void);
 
 void Demagnetization(void);
 void ProcDemagnetization(void);
+
 void ParsStruct(void);
+
+
 void HAL_UART1_RxCpltCallback(UART_HandleTypeDef *huart);
+
+// обработка прерываний
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 void SaveSetting(void);

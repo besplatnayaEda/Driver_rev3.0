@@ -1203,6 +1203,11 @@ HAL_StatusTypeDef HAL_TIM_PWM_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel
   }
 
   /* Enable the Peripheral */
+	if(htim->Instance==TIM1)
+	{
+		htim->Instance->CR1 =(TIM_CR1_CEN | TIM_CR1_ARPE | TIM_CR1_CMS_0);
+	}
+	else
   __HAL_TIM_ENABLE(htim);
   
   /* Return function status */

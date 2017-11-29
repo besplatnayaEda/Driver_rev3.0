@@ -108,6 +108,7 @@ extern float mean1;
 extern float mean2;
 extern float mean3;
 extern float mean4;
+extern uint32_t tmpData;
 
 
 extern float Us4;
@@ -286,13 +287,7 @@ int main(void)
 	//SETUP.cap = 1 ;
 	//C4 = 8.55e-6f;
 	
-	#ifdef DEBUG
-		f1 = 769;
-		f2 = 719;
-		BR = 2.9;
-		CodeMode = 2;
-		Parsing(55,0);
-	#endif
+	
 	
 	UART2_RecvType = UART2_RECV_CMD;
 	HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
@@ -305,6 +300,22 @@ int main(void)
 	STATUS.drvenable = 1;
 	CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 	
+	
+	#ifdef DEBUG
+//		f1 = 984;
+//		f2 = 966;
+//		BR = 2;
+//		CodeMode = 0;
+		SETUP.softsrart = 0;
+		SoftStart = 0;
+		RepeatNum = 11;
+		f1 = 769;
+		f2 = 719;
+		BR = 3;
+		CodeMode = 2;
+		tmpData = 55;
+		Parsing(55,0);
+	#endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
