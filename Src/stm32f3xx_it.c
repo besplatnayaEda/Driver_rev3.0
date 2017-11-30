@@ -326,7 +326,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM1_CC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_CC_IRQn 0 */
-	
+	HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_SET);
 	switch(TransMode)
 		{
 		case DIAG:
@@ -334,6 +334,7 @@ void TIM1_CC_IRQHandler(void)
 				{
 					if(n==10)
 						n = 2;
+//					HAL_TIM_Base_Stop_IT(&htim7);
 					CorrectTIM();
 				}
 			if(f_change == 0)
@@ -351,6 +352,7 @@ void TIM1_CC_IRQHandler(void)
 				{
 					//if(n==8)
 						n = 2;
+//					HAL_TIM_Base_Stop_IT(&htim7);
 					CorrectTIM();
 				}
 		break;
@@ -359,6 +361,7 @@ void TIM1_CC_IRQHandler(void)
 				{
 					//if(n==8)
 						n = 2;
+//					HAL_TIM_Base_Stop_IT(&htim7);
 					CorrectTIM();
 				}
 		break;
@@ -394,6 +397,7 @@ void TIM1_CC_IRQHandler(void)
 		n_s = ~n_s;
 		//n_stop++;
 	}}
+		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_2,GPIO_PIN_RESET);
   /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
@@ -480,11 +484,11 @@ void TIM7_IRQHandler(void)
   /* USER CODE BEGIN TIM7_IRQn 0 */
 	
 	GetVoltage();
-	
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-
+	HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_RESET);
   /* USER CODE END TIM7_IRQn 1 */
 }
 

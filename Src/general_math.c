@@ -305,7 +305,17 @@ void StartPWM(void)
 			TIM1 -> SR &= TIM_SR_CC4IF;
 			TIM1 -> SR &= TIM_SR_CC5IF;
 			TIM1 -> SR &= TIM_SR_CC6IF;
-			HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
+		
+//			HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
+			TIM1->DIER |= (TIM_IT_CC1);
+			TIM_CCxChannelCmd(TIM1, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+			TIM1->BDTR|=(TIM_BDTR_MOE);
+			/* Enable the Peripheral */
+	if(TransMode == DIAG)
+		TIM1->CR1|=(TIM_CR1_CEN);
+	else
+		TIM1->CR1 =(TIM_CR1_CEN | TIM_CR1_ARPE | TIM_CR1_CMS_0);
+		
 			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);				// запуск шим
 			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
@@ -320,13 +330,17 @@ void StartPWM(void)
 			//TIM7 -> ARR = Period - 2*DeathTime;
 			
 			
-			HAL_TIM_Base_Stop_IT(&htim7);
+//			HAL_TIM_Base_Stop_IT(&htim7);
 			if(SoftStart == OFF)
 			{
-				TIM7 -> CNT = 0;
-				TIM7 -> EGR |= TIM_EGR_UG;
-				TIM7 -> ARR = Pulse_1 - DeathTime + 20*Tick;
-				HAL_TIM_Base_Start_IT(&htim7);				// запуск таймера ацп
+				TIM7 -> CNT   = 0;
+				TIM7 -> EGR  |= TIM_EGR_UG;
+				
+//				TIM7 -> SR	 |= TIM_SR_UIF;
+				TIM7 -> ARR   = Pulse_1 - DeathTime + 20*Tick;
+				TIM7 -> DIER |= TIM_IT_UPDATE;
+				TIM7 -> CR1  |= TIM_CR1_CEN;
+//				HAL_TIM_Base_Start_IT(&htim7);				// запуск таймера ацп
 			}
 			
 		
@@ -347,6 +361,7 @@ void StopPWM(void)
 			//{
 				HAL_TIM_Base_Stop_IT(&htim6);											// остановкка таймера данных
 				HAL_TIM_Base_Stop_IT(&htim7);											// остановка таймера ацп
+				TIM7 -> EGR  |= TIM_EGR_UG;
 			
 			switch(SoftStart)
 			{
@@ -361,6 +376,7 @@ void StopPWM(void)
 			if(n_stop == 10)
 			{
 			HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);					// остановка другой диагонали
+				TIM1->CR1 &=~TIM_CR1_ARPE;
 			HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
 						
 							
@@ -373,6 +389,7 @@ void StopPWM(void)
 			TIM6 -> CNT = 0;
 			HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
 			TIM7 -> CNT = 0;
+			TIM7 -> SR	 |= TIM_SR_UIF;
 			STATUS.trans_state = 0;
 			CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			}
@@ -382,17 +399,23 @@ void StopPWM(void)
 					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);					// остановка одной диагонали
 					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_4);
 					HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);					// остановка другой диагонали
+				TIM1->CR1 &=~TIM_CR1_ARPE;
 					HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
 					
 				TIM1 -> BDTR &= TIM_BREAK_ENABLE;										// блокировка выходов шим
 				n = 0;
 				TIM1 -> CNT = 0;
 				TIM1 -> ARR = 0;
+				TIM1->CCR1 = 0;
+				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
+				TIM1->CCR4 = 0;
 				TIM6 -> ARR = 0;
-					TIM7 -> ARR = 0;
+				TIM7 -> ARR = 0;
 				TIM6 -> CNT = 0;
 				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
 				TIM7 -> CNT = 0;
+				TIM7 -> SR	 |= TIM_SR_UIF;
 				STATUS.trans_state = 0;
 				CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 				break;
@@ -1164,7 +1187,7 @@ void ProcData(void)
 			case 1:
 				TIM7 -> ARR = Pulse_3/2 - 80*Tick;	// начало импульса
 				n = 9;
-				//HAL_TIM_Base_Start_IT(&htim7);
+				HAL_TIM_Base_Start_IT(&htim7);
 				break;
 			case 2:
 				TIM7 -> ARR = DeathTime + 20*Tick;	// начало импульса
