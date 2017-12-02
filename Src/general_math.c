@@ -434,7 +434,6 @@ void StopPWM(void)
 	// диагностика и отправка номера
 void DiagnSendData(void)
 {
-	CalibrateMean();
 	SendForm = 0;
 	StartSend = 1;
 	StopDiag = 0;
@@ -444,7 +443,6 @@ void DiagnSendData(void)
 	// диагностика и команда
 void DiagnSendComand(void)
 {
-	CalibrateMean();
 	SendForm = 1;
 	StartSend = 1;
 	StopDiag = 0;
@@ -454,7 +452,6 @@ void DiagnSendComand(void)
 	// диагностики и номер с командой
 void DiagnSendComandnData(void)
 {
-	CalibrateMean();
 	SendForm = 2;
 	StartSend = 1;
 	StopDiag = 0;
@@ -464,7 +461,6 @@ void DiagnSendComandnData(void)
 	// диагностика и запуск аварии
 void DiagnSendAlarm(void)
 {
-	CalibrateMean();
 	SendForm = 3;
 	StartSend = 1;
 	StopDiag = 0;
@@ -1065,7 +1061,7 @@ void ProcData(void)
 		TransMode = DIAG;																						// режим работы передатчика
 		diag = 0;
 		n = 0;
-
+		CalibrateMean();
 		
 		SoftStart = OFF;//
 		
