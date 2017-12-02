@@ -1716,6 +1716,8 @@ void GetVoltage(void)
 				}
 			}
 			}
+			if((ant_work-ant_nwork)==0)		//остановка передачи, если все антенны кончились
+				StopPWM();
 				
 			}
 		}
