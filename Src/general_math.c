@@ -1656,12 +1656,14 @@ void GetVoltage(void)
 					if(UIrise[i] > FUSE)
 					{
 						STATUS.ant_fuse[i] = 1;
+						SETUP.ant[i] = 0;
 						StopPWM();
 						ant_nwork++;
 					}
 					if(UIrise[i] < BREAK)
 					{
 						STATUS.ant_break[i] = 1;
+						SETUP.ant[i] = 0;
 						ant_nwork++;
 					}
 				}
