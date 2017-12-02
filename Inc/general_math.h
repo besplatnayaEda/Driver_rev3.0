@@ -313,6 +313,7 @@ float CalculateC(float L);
 
 void CheckAntState(float U1r, float U2r, float U3r, float U4r);
 void CalibrateMean(void);
+void TransferInterrupt(void);
 
 // работа с внешним генератором
 void StartExternPWM(void);

@@ -198,7 +198,7 @@ uint8_t n_stop = 0;
 uint8_t diag = 0, m = 0, def = 0;
 
 uint8_t CodeMode = 0;
-uint8_t SendForm = 0;			// 0 - шахтер, 1 - команда, 2 - шахтер и команда
+uint8_t SendForm = 0;			// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария
 uint8_t RepeatNum = 0;
 
 extern uint8_t  SoftStart;
@@ -1656,15 +1656,16 @@ void GetVoltage(void)
 					if(UIrise[i] > FUSE)
 					{
 						STATUS.ant_fuse[i] = 1;
-						SETUP.ant[i] = 0;
-						StopPWM();
+						SETUP.ant[i] = 0;						
 						ant_nwork++;
+						TransferInterrupt();
 					}
 					if(UIrise[i] < BREAK)
 					{
 						STATUS.ant_break[i] = 1;
 						SETUP.ant[i] = 0;
 						ant_nwork++;
+						TransferInterrupt();
 					}
 				}
 				else
@@ -1673,7 +1674,7 @@ void GetVoltage(void)
 					STATUS.ant_break[i] = 0;
 				}
 			}
-			
+			/*
 			if((ant_work-ant_nwork)>0)
 			{
 				for(uint8_t i = 0; i <4; i++)
@@ -1715,7 +1716,7 @@ void GetVoltage(void)
 					}
 				}
 			}
-			}
+			}*/
 			if((ant_work-ant_nwork)==0)		//остановка передачи, если все антенны кончились
 				StopPWM();
 				
@@ -1765,6 +1766,28 @@ void GetVoltage(void)
 	mean4 *= Vsupp/Effbit;
 	}
 
+	// перерывание передачи
+	void TransferInterrupt(void)
+	{
+		StopPWM();
+		SendPacketUART();
+		
+		switch(SendForm){
+			case 0:
+				DiagnSendData();
+			break;
+			case 1:
+				DiagnSendComand();
+			break;
+			case 2:
+				DiagnSendComandnData();
+			break;
+			case 3:
+				DiagnSendAlarm();
+			break;
+		}
+		
+	}
 	
 	void FormSTATUS(void)
 	{
