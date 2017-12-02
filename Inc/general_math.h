@@ -26,6 +26,8 @@
 #define FUSE				400e-3f				// замыкание
 #define BREAK				5e-3f		// обрыв
 
+#define MEAN_CNT		1000
+
 #define ON					1
 #define OFF					0
 
@@ -310,6 +312,7 @@ float CalculateP(float I, float R);
 float CalculateC(float L);
 
 void CheckAntState(float U1r, float U2r, float U3r, float U4r);
+void CalibrateMean(void);
 
 // работа с внешним генератором
 void StartExternPWM(void);

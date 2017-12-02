@@ -434,6 +434,7 @@ void StopPWM(void)
 	// диагностика и отправка номера
 void DiagnSendData(void)
 {
+	CalibrateMean();
 	SendForm = 0;
 	StartSend = 1;
 	StopDiag = 0;
@@ -443,6 +444,7 @@ void DiagnSendData(void)
 	// диагностика и команда
 void DiagnSendComand(void)
 {
+	CalibrateMean();
 	SendForm = 1;
 	StartSend = 1;
 	StopDiag = 0;
@@ -452,6 +454,7 @@ void DiagnSendComand(void)
 	// диагностики и номер с командой
 void DiagnSendComandnData(void)
 {
+	CalibrateMean();
 	SendForm = 2;
 	StartSend = 1;
 	StopDiag = 0;
@@ -461,6 +464,7 @@ void DiagnSendComandnData(void)
 	// диагностика и запуск аварии
 void DiagnSendAlarm(void)
 {
+	CalibrateMean();
 	SendForm = 3;
 	StartSend = 1;
 	StopDiag = 0;
@@ -1393,7 +1397,7 @@ void GetVoltage(void)
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
 			
 			///*									//	проверка антенн на целостность во время передачи
-			CheckAntState(U1rise1, U2rise1, U3rise1, U4rise1);
+			CheckAntState(fabs(U1rise1), fabs(U2rise1), fabs(U3rise1), fabs(U4rise1));
 			//*/
 				I1 = CalculateI(U1rise1);
 				I2 = CalculateI(U2rise1);
@@ -1484,7 +1488,7 @@ void GetVoltage(void)
 				U4fall1 -= mean4;
 			
 			///*													//	проверка антенн на целостность во время передачи
-			CheckAntState(U1rise2, U2rise2, U3rise2, U4rise2);
+			CheckAntState(fabs(U1rise2), fabs(U2rise2), fabs(U3rise2), fabs(U4rise2));
 			
 				//*/										//	проверка антенн на целостность во время передачи
 			
@@ -1721,6 +1725,49 @@ void GetVoltage(void)
 				
 			}
 		}
+	
+// калибровка средней точки ацп
+	void CalibrateMean(void)
+	{
+		mean1 = 0;
+		mean2 = 0;
+		mean3 = 0;
+		mean4 = 0;
+		
+		for(uint16_t j = 0; j < MEAN_CNT; j++)
+	{
+		HAL_ADC_Start(&hadc1);			// запуск ацп
+		HAL_ADC_Start(&hadc2);
+		HAL_ADC_Start(&hadc3);
+		HAL_ADC_Start(&hadc4);
+		
+		HAL_ADC_PollForConversion(&hadc1,1);
+		HAL_ADC_PollForConversion(&hadc2,1);
+		HAL_ADC_PollForConversion(&hadc3,1);
+		HAL_ADC_PollForConversion(&hadc4,1);
+
+		mean1 += HAL_ADC_GetValue(&hadc1);
+		mean2 += HAL_ADC_GetValue(&hadc2);
+		mean3 += HAL_ADC_GetValue(&hadc3);
+		mean4 += HAL_ADC_GetValue(&hadc4);
+		
+		HAL_ADC_Stop(&hadc1);
+		HAL_ADC_Stop(&hadc2);
+		HAL_ADC_Stop(&hadc3);
+		HAL_ADC_Stop(&hadc4);
+		
+	}
+	
+	mean1 /= MEAN_CNT;
+	mean2 /= MEAN_CNT;
+	mean3 /= MEAN_CNT;
+	mean4 /= MEAN_CNT;
+	
+	mean1 *= Vsupp/Effbit;
+	mean2 *= Vsupp/Effbit;
+	mean3 *= Vsupp/Effbit;
+	mean4 *= Vsupp/Effbit;
+	}
 
 	
 	void FormSTATUS(void)

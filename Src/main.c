@@ -246,39 +246,7 @@ int main(void)
 	
 	
 	
-	for(uint16_t j = 0; j < 1000; j++)
-	{
-		HAL_ADC_Start(&hadc1);			// запуск ацп
-		HAL_ADC_Start(&hadc2);
-		HAL_ADC_Start(&hadc3);
-		HAL_ADC_Start(&hadc4);
-		
-		HAL_ADC_PollForConversion(&hadc1,1);
-		HAL_ADC_PollForConversion(&hadc2,1);
-		HAL_ADC_PollForConversion(&hadc3,1);
-		HAL_ADC_PollForConversion(&hadc4,1);
-
-		mean1 += HAL_ADC_GetValue(&hadc1);
-		mean2 += HAL_ADC_GetValue(&hadc2);
-		mean3 += HAL_ADC_GetValue(&hadc3);
-		mean4 += HAL_ADC_GetValue(&hadc4);
-		
-		HAL_ADC_Stop(&hadc1);
-		HAL_ADC_Stop(&hadc2);
-		HAL_ADC_Stop(&hadc3);
-		HAL_ADC_Stop(&hadc4);
-		
-	}
-	
-	mean1 /= 1000;
-	mean2 /= 1000;
-	mean3 /= 1000;
-	mean4 /= 1000;
-	
-	mean1 *= Vsupp/Effbit;
-	mean2 *= Vsupp/Effbit;
-	mean3 *= Vsupp/Effbit;
-	mean4 *= Vsupp/Effbit;
+	CalibrateMean();
 	
 	//if(*(__IO uint32_t*)(ADR_START) != 0xFFFFFFFF)
 		//LoadSetting();
