@@ -309,6 +309,8 @@ float CalculateR(float Ur, float Uf, float Cap, float L);
 float CalculateP(float I, float R);
 float CalculateC(float L);
 
+void CheckAntState(float U1r, float U2r, float U3r, float U4r);
+
 // работа с внешним генератором
 void StartExternPWM(void);
 void ExternPWM(void);

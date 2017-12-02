@@ -181,6 +181,12 @@ uint8_t	 RiseDelay = 80;
 uint8_t	 FallDelay = 80;
 uint8_t	 PauseDelay = 80;
 
+float		 UIrise[4];
+uint16_t mean_cnt = 0;
+uint16_t mean_value = 64;
+uint8_t	 ant_nwork = 0;
+uint8_t	 ant_work = 0;
+
 extern uint8_t	sec;
 extern uint32_t	min;
 
@@ -406,10 +412,10 @@ void StopPWM(void)
 				n = 0;
 				TIM1 -> CNT = 0;
 				TIM1 -> ARR = 0;
-				TIM1->CCR1 = 0;
-				TIM1->CCR2 = 0;
-				TIM1->CCR3 = 0;
-				TIM1->CCR4 = 0;
+				TIM1 -> CCR1 = 0;
+				TIM1 -> CCR2 = 0;
+				TIM1 -> CCR3 = 0;
+				TIM1 -> CCR4 = 0;
 				TIM6 -> ARR = 0;
 				TIM7 -> ARR = 0;
 				TIM6 -> CNT = 0;
@@ -1387,78 +1393,7 @@ void GetVoltage(void)
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
 			
 			///*									//	проверка антенн на целостность во время передачи
-			if(SETUP.ant[0] == 1)
-				{
-					if(fabs(U1rise1) < BREAK)
-						STATUS.ant_break[0] = 1;
-					else
-						STATUS.ant_break[0] = 0;
-					
-					if(fabs(U1rise1) > FUSE)
-						STATUS.ant_fuse[0] = 1;
-					else
-						STATUS.ant_fuse[0] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[0] = 0;
-					STATUS.ant_fuse[0] = 0;
-				}
-				
-				if(SETUP.ant[1] == 1)
-				{
-					if(fabs(U2rise1) < BREAK)
-						STATUS.ant_break[1] = 1;
-					else
-						STATUS.ant_break[1] = 0;
-					
-					if(fabs(U2rise1) > FUSE)
-						STATUS.ant_fuse[1] = 1;
-					else
-						STATUS.ant_fuse[1] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[1] = 0;
-					STATUS.ant_fuse[1] = 0;
-				}
-					
-				if(SETUP.ant[2] == 1)
-				{
-					if(fabs(U3rise1) < BREAK)
-						STATUS.ant_break[2] = 1;
-					else
-						STATUS.ant_break[2] = 0;
-					
-					if(fabs(U3rise1) > FUSE)
-						STATUS.ant_fuse[2] = 1;
-					else
-						STATUS.ant_fuse[2] = 0;
-					
-				}
-				else
-				{
-					STATUS.ant_break[2] = 0;
-					STATUS.ant_fuse[2] = 0;
-				}
-					
-				if(SETUP.ant[3] == 1)
-				{
-					if(fabs(U4rise1) < BREAK)
-						STATUS.ant_break[3] = 1;
-					else
-						STATUS.ant_break[3] = 0;
-					
-					if(fabs(U4rise1) > FUSE)
-						STATUS.ant_fuse[3] = 1;
-					else
-						STATUS.ant_fuse[3] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[3] = 0;
-					STATUS.ant_fuse[3] = 0;
-				}
+			CheckAntState(U1rise1, U2rise1, U3rise1, U4rise1);
 			//*/
 				I1 = CalculateI(U1rise1);
 				I2 = CalculateI(U2rise1);
@@ -1549,79 +1484,7 @@ void GetVoltage(void)
 				U4fall1 -= mean4;
 			
 			///*													//	проверка антенн на целостность во время передачи
-			if(SETUP.ant[0] == 1)
-				{
-					if(fabs(U1rise2) < BREAK)
-						STATUS.ant_break[0] = 1;
-					else
-						STATUS.ant_break[0] = 0;
-					
-					if(fabs(U1rise2) > FUSE)
-						STATUS.ant_fuse[0] = 1;
-					else
-						STATUS.ant_fuse[0] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[0] = 0;
-					STATUS.ant_fuse[0] = 0;
-				}
-				
-				if(SETUP.ant[1] == 1)
-				{
-					if(fabs(U2rise2) < BREAK)
-						STATUS.ant_break[1] = 1;
-					else
-						STATUS.ant_break[1] = 0;
-					
-					if(fabs(U2rise2) > FUSE)
-						STATUS.ant_fuse[1] = 1;
-					else
-						STATUS.ant_fuse[1] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[1] = 0;
-					STATUS.ant_fuse[1] = 0;
-				}
-				
-					
-				if(SETUP.ant[2] == 1)
-				{
-					if(fabs(U3rise2) < BREAK)
-						STATUS.ant_break[2] = 1;
-					else
-						STATUS.ant_break[2] = 0;
-					
-					if(fabs(U3rise2) > FUSE)
-						STATUS.ant_fuse[2] = 1;
-					else
-						STATUS.ant_fuse[2] = 0;
-					
-				}
-				else
-				{
-					STATUS.ant_break[2] = 0;
-					STATUS.ant_fuse[2] = 0;
-				}
-					
-				if(SETUP.ant[3] == 1)
-				{
-					if(fabs(U4rise2) < BREAK)
-						STATUS.ant_break[3] = 1;
-					else
-						STATUS.ant_break[3] = 0;
-					
-					if(fabs(U4rise2) > FUSE)
-						STATUS.ant_fuse[3] = 1;
-					else
-						STATUS.ant_fuse[3] = 0;
-				}
-				else
-				{
-					STATUS.ant_break[3] = 0;
-					STATUS.ant_fuse[3] = 0;
-				}
+			CheckAntState(U1rise2, U2rise2, U3rise2, U4rise2);
 			
 				//*/										//	проверка антенн на целостность во время передачи
 			
@@ -1759,6 +1622,102 @@ void GetVoltage(void)
 		
 		return Ctmp;
 	}
+	
+	
+	// проверка целостности антенн
+	void CheckAntState(float U1r, float U2r, float U3r, float U4r)
+	{
+		if(mean_cnt < mean_value)
+		{
+			// накопление сигналов
+			UIrise[0] += U1r;
+			UIrise[1] += U2r;
+			UIrise[2] += U3r;
+			UIrise[3] += U4r;
+			mean_cnt++;
+		}
+		else
+		{
+			// усреднение
+			UIrise[0] /= mean_value;
+			UIrise[1] /= mean_value;
+			UIrise[2] /= mean_value;
+			UIrise[3] /= mean_value;
+			mean_cnt = 0;
+			ant_work = 0;
+			ant_nwork = 0;
+			
+			// обработка в соответствии с порогами
+			for(uint8_t i = 0; i <4; i++)
+			{
+				if(SETUP.ant[i])
+				{
+					ant_work++;
+					if(UIrise[i] > FUSE)
+					{
+						STATUS.ant_fuse[i] = 1;
+						StopPWM();
+						ant_nwork++;
+					}
+					if(UIrise[i] < BREAK)
+					{
+						STATUS.ant_break[i] = 1;
+						ant_nwork++;
+					}
+				}
+				else
+				{
+					STATUS.ant_fuse[i] = 0;
+					STATUS.ant_break[i] = 0;
+				}
+			}
+			
+			if((ant_work-ant_nwork)>0)
+			{
+				for(uint8_t i = 0; i <4; i++)
+			{
+				if(STATUS.ant_fuse[i])
+				{
+					switch(i)
+					{
+						case 0:
+							CommandReply(U2CT_ANT_FUSE_1, 'i', STATUS.ant_fuse[i]);
+						break;
+						case 1:
+							CommandReply(U2CT_ANT_FUSE_2, 'i', STATUS.ant_fuse[i]);
+						break;
+						case 2:
+							CommandReply(U2CT_ANT_FUSE_3, 'i', STATUS.ant_fuse[i]);
+						break;
+						case 3:
+							CommandReply(U2CT_ANT_FUSE_4, 'i', STATUS.ant_fuse[i]);
+						break;
+					}
+				}
+				if(STATUS.ant_break[i])
+				{
+					switch(i)
+					{
+						case 0:
+							CommandReply(U2CT_ANT_BREAK_1, 'i', STATUS.ant_break[i]);
+						break;
+						case 1:
+							CommandReply(U2CT_ANT_BREAK_2, 'i', STATUS.ant_break[i]);
+						break;
+						case 2:
+							CommandReply(U2CT_ANT_BREAK_3, 'i', STATUS.ant_break[i]);
+						break;
+						case 3:
+							CommandReply(U2CT_ANT_BREAK_4, 'i', STATUS.ant_break[i]);
+						break;
+					}
+				}
+			}
+			}
+				
+			}
+		}
+
 	
 	void FormSTATUS(void)
 	{
