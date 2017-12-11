@@ -63,6 +63,11 @@ extern uint32_t	tmpData;
 extern uint8_t	tmpComand;
 extern uint8_t	diag;
 extern uint8_t 	SendForm;
+extern uint16_t alarm_pause_cnt;
+extern float 		BR;
+
+extern StatusSystem_t STATUS;
+extern SettingParametrs_t SETUP;
 			 
 extern uint32_t psk;
 extern uint8_t  SoftStart;
@@ -281,6 +286,18 @@ void TIM1_UP_TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
 	sec++;
+	if(SETUP.alarm_msg)
+	{
+		alarm_pause_cnt++;
+		if(alarm_pause_cnt > (ALARM_PAUSE))
+		{
+			DiagnSendAlarm();
+			alarm_pause_cnt = 0;
+		}
+		
+	}
+	else
+		alarm_pause_cnt = 0;
 	
 	if(sec == 60)
 	{
@@ -303,6 +320,9 @@ void TIM1_UP_TIM16_IRQHandler(void)
 			break;
 			case 3:
 				SendAlarm(tmpData);
+			break;
+			case 4:
+				TestTag(tmpData);
 			break;
 		}
 	}
@@ -466,6 +486,9 @@ void TIM6_DAC_IRQHandler(void)
 			break;	
 		case ALARM:
 			ProcAlarm();
+			break;
+		case TESTTAG:
+			ProcTestTag();
 			break;
 	}	
   /* USER CODE END TIM6_DAC_IRQn 0 */

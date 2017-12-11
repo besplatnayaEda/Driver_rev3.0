@@ -183,12 +183,14 @@ uint8_t	 PauseDelay = 80;
 
 float		 UIrise[4];
 uint16_t mean_cnt = 0;
-uint16_t mean_value = 64;
+uint16_t mean_value = 32;
 uint8_t	 ant_nwork = 0;
 uint8_t	 ant_work = 0;
 
 extern uint8_t	sec;
 extern uint32_t	min;
+uint16_t alarm_trans_cnt = 0;
+uint16_t alarm_pause_cnt = 0;
 
 uint8_t n = 0;
 uint8_t n_IC = 0;
@@ -198,7 +200,7 @@ uint8_t n_stop = 0;
 uint8_t diag = 0, m = 0, def = 0;
 
 uint8_t CodeMode = 0;
-uint8_t SendForm = 0;			// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария
+uint8_t SendForm = 0;			// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария, 4 - тест меток
 uint8_t RepeatNum = 0;
 
 extern uint8_t  SoftStart;
@@ -467,6 +469,15 @@ void DiagnSendAlarm(void)
 	Diag();
 }
 
+// диагностика и запуск тестирования меток
+	void DiagnSendTestTag(void)
+	{
+		SendForm = 4;
+		StartSend = 1;
+		StopDiag = 0;
+		Diag();
+	}
+
 		// запуск передачи
 void SendData(uint32_t data)
 	{	
@@ -587,6 +598,7 @@ void SendAlarm(uint32_t data)
 				Tick = SystemCoreClock/((TIM1->PSC+1)*2*1000000);					// расчет одного тика таймера длительностью 1 мкс
 				Position = 0;
 				aCNT = 0;
+				alarm_trans_cnt = 0;
 				DeathTime = 2*DeathTime_u*Tick+Overlap_u*Tick;						// расчет дедтайма
 				Overlap = Overlap_u*Tick;																	// расчет перекрытия
 				TimeLimit = 10*Tick;																			// стартовая длительность 10 тиков	
@@ -594,10 +606,17 @@ void SendAlarm(uint32_t data)
 				TransMode = ALARM;
 				SoftStart = SETUP.softsrart;
 				
-				if(data==65535)
+				alarm_pause_cnt = 0;
+				
+				if(SETUP.alarm_msg)
 					psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
-				else if(data == 0)
-					psk = SystemCoreClock/((TIM1->PSC+1)*4*f2);
+				else
+				{
+					if(data==65535)
+						psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
+					else if(data == 0)
+						psk = SystemCoreClock/((TIM1->PSC+1)*4*f2);
+				}
 	
 				TimingCalc();																								// расчет длитльностей импульсов
 				SetTiming();																								// установка длительностей импульсов
@@ -614,12 +633,129 @@ void SendAlarm(uint32_t data)
 					
 				}
 }
+		// тестирование меток
+	void TestTag(uint32_t data)
+	{
+		// проведение диагностики
 		
+		//Diag();
+		#ifndef DEBUG
+		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
+			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
+			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+		#endif
+			{
+		// установка стартовых параметров
+		Tick = SystemCoreClock/((TIM1->PSC+1)*2*1000000);					// расчет одного тика таймера длительностью 1 мкс
+		Position = 0;
+		aCNT = 0;
+		DeathTime = 2*DeathTime_u*Tick+Overlap_u*Tick;						// расчет дедтайма
+		Overlap = Overlap_u*Tick;																	// расчет перекрытия
+		TimeLimit = 10*Tick;																			// стартовая длительность 10 тиков	
+		State = pwmSTART;																					// запуск шим
+		TransMode = TESTTAG;
+		//SoftStart = ON;
+		SoftStart = SETUP.softsrart;
+		diag = 0;
+		
+		if(RepeatNum == 0)
+			RepeatNum = 1;
+			
+		//	s - start
+		//	d - data
+		//	p - stop
+		//	l - LSB
+		//	k - команда
+		//	m	-	MSB
+	
+	uint8_t tind;
+	
+	uint8_t	dataBIN[16];
+	uint8_t BaseLenght;
+	
+					// бинарный 
+			BaseLenght = 16;
+			DataLenght = BaseLenght*RepeatNum;
+			if(DataLenght > MAXDAT)
+				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
+			for(uint8_t i = 0; i < 16; i++)
+				dataBIN[i] = (data >> i)&1;					// здесь получается направление младшим битом вперед
+		
+		
+		for(uint8_t ind = 0; ind < DataLenght; ind++)
+			{
+				
+				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
+				
+					// в основном цикле направление старшим битом вперед case 0 = dataBIN[15] 
+					// если делать младшим вперед, то нужно поменять порядок бит case 0 = dataBIN[0] 
+				switch(tind){
+					case 0:					// data 15 старший бит
+						Data[ind] = dataBIN[15];
+					break;
+					case 1:					 // data 14
+						Data[ind] = dataBIN[14];
+					break;
+					case 2:					// data 13
+						Data[ind] = dataBIN[13];
+					break;
+					case 3:					// data 12
+						Data[ind] = dataBIN[12];
+					break;
+					case 4:					// data 11
+						Data[ind] = dataBIN[11];
+					break;
+					case 5:					// data 10
+						Data[ind] = dataBIN[10];
+					break;
+					case 6:					 // data 9
+						Data[ind] = dataBIN[9];
+					break;
+					case 7:					// data 8
+						Data[ind] = dataBIN[8];
+					break;
+					case 8:					// data 7
+						Data[ind] = dataBIN[7];
+					break;
+					case 9:					// data 6
+						Data[ind] = dataBIN[6];
+					break;
+					case 10:				// data 5
+						Data[ind] = dataBIN[5];
+					break;
+					case 11:					// data 4
+						Data[ind] = dataBIN[4];
+					break;
+					case 12:					// data 3
+						Data[ind] = dataBIN[3];
+					break;
+					case 13:					// data 2
+						Data[ind] = dataBIN[2];
+					break;
+					case 14:					// data 1
+						Data[ind] = dataBIN[1];
+					break;
+					case 15:					// data 0 младший бит
+						Data[ind] = dataBIN[0];
+					break;}
+				}
+
+		
+		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		
+		TIM6 -> CNT = 0;
+		if(def == 0)
+			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+	}
+	}
+	
 	void ProcAlarm(void)
 	{
-			STATUS.repeatcur = 0;
-			STATUS.bitnum = 0;
-#ifdef ALARM_FFFF	
+		STATUS.repeatcur = 0;
+		STATUS.bitnum = 0;
+			
+		alarm_trans_cnt++;				// счетчик времени работы передачи аварийного оповещения
+
 			if(psk == (SystemCoreClock/((TIM1->PSC+1)*4*f1)))
 				psk = SystemCoreClock/((TIM1->PSC+1)*4*f2);
 			else
@@ -627,7 +763,11 @@ void SendAlarm(uint32_t data)
 			
 			TimingCalc();
 			SetTiming();
-#endif
+
+			
+		if(alarm_trans_cnt > (ALARM_TRANS * BR))
+			State = pwmSTOP;
+		
 		// остановка/запуск шим
 		switch(State)
 		{
@@ -637,6 +777,8 @@ void SendAlarm(uint32_t data)
 				State = pwmBISY;
 			break;
 			case pwmSTOP:
+				alarm_trans_cnt = 0;
+				alarm_pause_cnt = 0;
 				STATUS.trans_state = 0;
 				StopPWM();
 				State = pwmBISY;
@@ -653,7 +795,10 @@ void SendAlarm(uint32_t data)
 	// остановка оповещения
 void StopAlarm(void)
 {
+	alarm_trans_cnt = 0;
+	alarm_pause_cnt = 0;
 	
+	StopPWM();
 }
 		// генератор 
 void Generator(void)
@@ -1049,7 +1194,7 @@ void ProcData(void)
 	
 
 	//  Запуск диагностики антенн
-	void Diag(void)
+void Diag(void)
 	{
 		StopDiag = 0;
 		Tick = SystemCoreClock/((TIM1->PSC+1)*2*1000000);
@@ -1073,6 +1218,69 @@ void ProcData(void)
 		if(def == 0)
 			HAL_TIM_Base_Start_IT(&htim6);															// запуск диагностики
 	}
+	
+	
+	// обработка тестирования меток
+	void ProcTestTag(void)
+	{
+
+			STATUS.repeatcur = floorl(Position/DataLenght)+1;
+			STATUS.bitnum = Position - floorl(Position/DataLenght)*(DataLenght/RepeatNum);
+
+		if(Position < DataLenght)
+		{
+		switch(Data[Position]){														// смена частот на битах
+			case 1:
+				psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
+				break;
+			case 0:
+				psk = SystemCoreClock/((TIM1->PSC+1)*4*f2);
+				break;
+		}
+		// если кончилось сообщение, то остановка
+		Position++;
+		}
+		else
+		{
+			State = pwmSTOP;
+			STATUS.trans_state = 0;													// состояние остановки передачи
+		}
+		
+
+		// расчет и установка длительностей
+		if(State != pwmSTOP)
+		{
+			if(psk != aCNT)
+			{
+				aCNT = psk;
+				TimingCalc();
+				SetTiming();
+			}
+			
+		}
+		
+		
+		// остановка/запуск шим
+		switch(State)
+		{
+			case pwmSTART:
+				STATUS.trans_state = 1;
+				StartPWM();
+				State = pwmBISY;
+			break;
+			case pwmSTOP:
+				STATUS.trans_state = 0;
+				StopPWM();
+				State = pwmBISY;
+			break;
+		}
+				
+		
+		FormSTATUS();
+		SendPacketUART();																	// отправка состояния передатчика по уарт в начале передачи и после каждого бита
+	
+	}
+	
 	
 	// обработка контроля антенн
 	void ProcDiag(void)
@@ -1658,14 +1866,18 @@ void GetVoltage(void)
 						STATUS.ant_fuse[i] = 1;
 						SETUP.ant[i] = 0;						
 						ant_nwork++;
+#ifndef DEBUG
 						TransferInterrupt();
+#endif
 					}
 					if(UIrise[i] < BREAK)
 					{
 						STATUS.ant_break[i] = 1;
 						SETUP.ant[i] = 0;
 						ant_nwork++;
+#ifndef DEBUG
 						TransferInterrupt();
+#endif
 					}
 				}
 				else
@@ -1717,9 +1929,10 @@ void GetVoltage(void)
 				}
 			}
 			}*/
+#ifndef DEBUG
 			if((ant_work-ant_nwork)==0)		//остановка передачи, если все антенны кончились
 				StopPWM();
-				
+#endif
 			}
 		}
 	
@@ -1994,7 +2207,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       break;
     case U2CT_OVERLAP:																						// перекрытие
       SETUP.overlap = UART2RecvData.value.i;
-			Overlap_u 		= -fabs(SETUP.overlap);
+			Overlap_u 		= -fabs(SETUP.overlap);												// временное с обрптным перекрытием
       break;
     case U2CT_TIME_LIMIT:																					// ограниечение длительности
       SETUP.duration_limit = UART2RecvData.value.i;
@@ -2114,7 +2327,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			if(STATUS.trans_state == 0)																				// запуск передачи
 		{
 			if(Mode == MAIN)
-				__nop;//DiagnSendAlarm();								
+				DiagnSendTestTag();								
 		}
 			break;
 		case U2CT_COMMAND:
@@ -2272,9 +2485,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 						if((tmpData == 0) || (tmpData == 65535))
 							DiagnSendAlarm();
 						else
-							//SendData(tmpData);
-							//Diag();
-							DiagnSendData();
+#ifdef DEBUG
+						DiagnSendAlarm();
+#else
+						DiagnSendData();
+#endif
 			}
 					else if(Mode == AUX)
 						StartExternPWM();

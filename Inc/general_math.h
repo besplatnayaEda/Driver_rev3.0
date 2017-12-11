@@ -21,10 +21,15 @@
 #define DIAG				2
 #define GENERATOR		3
 #define ALARM				4
+#define TESTTAG			5
+
+
+#define ALARM_TRANS	64
+#define ALARM_PAUSE	32
 
 // порог контроля антенн
 #define FUSE				400e-3f				// замыкание
-#define BREAK				5e-3f		// обрыв
+#define BREAK				10e-3f		// обрыв
 
 #define MEAN_CNT		1000
 
@@ -125,9 +130,9 @@ typedef struct SettingParametrs {
 	uint8_t	 codemode;		//
 	uint8_t	 overloadmode;
 	uint8_t	 suppvoltage;	//
-	uint8_t alarm_msg;
-	uint8_t test_tag;
-	uint8_t command;
+	uint8_t  alarm_msg;
+	uint8_t  test_tag;
+	uint8_t  command;
 	
 	uint8_t	 ant[4];
 	uint8_t	 antlevel[4];
@@ -286,6 +291,11 @@ float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);	//
 void SendData(uint32_t data);						
 void ProcData(void);
 void DiagnSendData(void);
+
+// тестирование меток
+void TestTag(uint32_t data);
+void ProcTestTag(void);
+void DiagnSendTestTag(void);
 
 // аварийный вызов
 void SendAlarm(uint32_t data);

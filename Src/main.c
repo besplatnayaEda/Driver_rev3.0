@@ -274,6 +274,7 @@ int main(void)
 //		f2 = 966;
 //		BR = 2;
 //		CodeMode = 0;
+//		SETUP.alarm_msg = 1;
 		SETUP.softsrart = 0;
 		SoftStart = 0;
 		RepeatNum = 11;
