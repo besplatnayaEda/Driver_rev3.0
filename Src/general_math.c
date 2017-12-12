@@ -2250,8 +2250,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		{
 			
 			if(Mode == MAIN){
-				if((tmpData == 0) || (tmpData == 65535))
+				if(tmpData == 0)
+				{
+					SETUP.alarm_msg = 1;
 					DiagnSendAlarm();
+				}
+				else if(tmpData == 65535)
+				{
+					SETUP.alarm_msg = 0;
+					StopAlarm();
+				}
 				else
 					//SendData(tmpData);
 				DiagnSendData();
@@ -2486,6 +2494,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 							DiagnSendAlarm();
 						else
 #ifdef DEBUG
+						SETUP.alarm_msg = 1;
 						DiagnSendAlarm();
 #else
 						DiagnSendData();
@@ -2497,7 +2506,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 						Generator();}
 				break;
 			case GPIO_PIN_11:							// останов/ сброс
+#ifdef DEBUG
+				SETUP.alarm_msg = 0;
+				StopAlarm();
+#else
 				StopPWM();
+#endif
+				
 				if(def == 1)
 				{
 					HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_RESET);
