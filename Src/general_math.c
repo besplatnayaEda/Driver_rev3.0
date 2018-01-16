@@ -182,6 +182,9 @@ uint8_t	 FallDelay = 80;
 uint8_t	 PauseDelay = 80;
 
 float		 UIrise[4];
+float		 UI_break[4];
+float		 UI_fuse[4];
+
 uint16_t mean_cnt = 0;
 uint16_t mean_value = 32;
 uint8_t	 ant_nwork = 0;
@@ -1832,6 +1835,15 @@ void GetVoltage(void)
 	}
 	
 	
+	float CalculateTransVoltage(uint8_t I_forb)
+	{
+		float f;
+		float U_forb;
+		f = (f1+f2)/2;
+		U_forb = I_forb*(2*PI*f*L0);	
+		
+		return U_forb;
+	}
 	// проверка целостности антенн
 	void CheckAntState(float U1r, float U2r, float U3r, float U4r)
 	{
@@ -1861,7 +1873,7 @@ void GetVoltage(void)
 				if(SETUP.ant[i])
 				{
 					ant_work++;
-					if(UIrise[i] > FUSE)
+					if(UIrise[i] > UI_fuse[i])
 					{
 						STATUS.ant_fuse[i] = 1;
 						SETUP.ant[i] = 0;						
@@ -1870,7 +1882,7 @@ void GetVoltage(void)
 						TransferInterrupt();
 #endif
 					}
-					if(UIrise[i] < BREAK)
+					if(UIrise[i] < UI_break[i])
 					{
 						STATUS.ant_break[i] = 1;
 						SETUP.ant[i] = 0;
@@ -2239,6 +2251,38 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			SETUP.capatity_ant[3] = UART2RecvData.value.f;
 			C4 = SETUP.capatity_ant[3]*1e-6f;
 			break;
+		case U2CT_I_BREAK_ANT_1:
+			SETUP.i_break[0] = UART2RecvData.value.i;
+			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0]);
+			break;
+		case U2CT_I_BREAK_ANT_2:
+			SETUP.i_break[1] = UART2RecvData.value.i;
+			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1]);
+			break;
+		case U2CT_I_BREAK_ANT_3:
+			SETUP.i_break[2] = UART2RecvData.value.i;
+			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2]);
+			break;
+		case U2CT_I_BREAK_ANT_4:
+			SETUP.i_break[3] = UART2RecvData.value.i;
+			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3]);
+			break;
+		case U2CT_I_FUSE_ANT_1:
+			SETUP.i_fuse[0] = UART2RecvData.value.i;
+			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0]);
+			break;
+		case U2CT_I_FUSE_ANT_2:
+			SETUP.i_fuse[1] = UART2RecvData.value.i;
+			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1]);
+			break;
+		case U2CT_I_FUSE_ANT_3:
+			SETUP.i_fuse[2] = UART2RecvData.value.i;
+			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2]);
+			break;
+		case U2CT_I_FUSE_ANT_4:
+			SETUP.i_fuse[3] = UART2RecvData.value.i;
+			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3]);
+			break;
 		case U2CT_REPEATNUM:																					// число повторов передачи
 			SETUP.repeatnum = UART2RecvData.value.i;
 			RepeatNum = SETUP.repeatnum;
@@ -2299,14 +2343,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_MODUlATION:																					// модул€ци€ чмн/фмн
 			SETUP.modulation = UART2RecvData.value.i;
 			break;
-		case U2CT_CODEMODE:																						// кодировка
+		case U2CT_CODE_MODE:																						// кодировка
 			SETUP.codemode = UART2RecvData.value.i;
 			CodeMode = SETUP.codemode;
 			break;
 		case U2CT_OVERLOAD_MODE:																			// перегрузка по току авто/ одноразова€
 			SETUP.overloadmode = UART2RecvData.value.i;
 			break;
-		case U2CT_SUPPVOLTAGE:
+		case U2CT_SUPP_VOLTAGE:
 			SETUP.suppvoltage = UART2RecvData.value.i;
 			Us1 = CalculateSupply(SETUP.antlevel[0],SETUP.supplevel,SETUP.suppvoltage,1);
 			Us2 = CalculateSupply(SETUP.antlevel[1],SETUP.supplevel,SETUP.suppvoltage,2);
@@ -2376,12 +2420,30 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			SETUP.antlevel[3] = UART2RecvData.value.i;
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			break;
-		case U2CT_SUPPLEVEL:																					// напр€жение на входной обмотке высокое/низкое
+		case U2CT_TURNS_ANT_1:
+			SETUP.turns_ant[0] = UART2RecvData.value.i;
+			break;
+		case U2CT_TURNS_ANT_2:
+			SETUP.turns_ant[1] = UART2RecvData.value.i;
+			break;
+		case U2CT_TURNS_ANT_3:
+			SETUP.turns_ant[2] = UART2RecvData.value.i;
+			break;
+		case U2CT_TURNS_ANT_4:
+			SETUP.turns_ant[3] = UART2RecvData.value.i;
+			break;
+		case U2CT_TURNS_PRIM:
+			SETUP.turns_prim = UART2RecvData.value.i;
+			break;
+		case U2CT_SUPPLY_LEVEL:																					// напр€жение на входной обмотке высокое/низкое
 			SETUP.supplevel = UART2RecvData.value.i;
 			Us1 = CalculateSupply(SETUP.antlevel[0],SETUP.supplevel,SETUP.suppvoltage,1);
 			Us2 = CalculateSupply(SETUP.antlevel[1],SETUP.supplevel,SETUP.suppvoltage,2);
 			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
+			break;
+		case U2CT_STANDBY:
+			SETUP.standby = UART2RecvData.value.i;
 			break;
 		case U2CT_SETUP:
 			f1 = SETUP.freq1;
@@ -2403,7 +2465,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Us2 = CalculateSupply(SETUP.antlevel[1],SETUP.supplevel,SETUP.suppvoltage,2);
 			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
+			
+			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0]);
+			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1]);
+			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2]);
+			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3]);
+			
+			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0]);
+			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1]);
+			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2]);
+			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3]);
 			//SaveSetting();
+			break;
+		case U2CT_DRIVER_FW:
+			CommandReply(U2CT_DRIVER_FW, 'i', STATUS.driver_fw);
+			break;
+		case U2CT_DRIVER_HW:
+			CommandReply(U2CT_DRIVER_HW, 'i', STATUS.driver_hw);
 			break;
     default: break;
   }  // switch
@@ -2495,7 +2573,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 						else
 #ifdef DEBUG
 						SETUP.alarm_msg = 1;
-						DiagnSendAlarm();
+//						DiagnSendAlarm();
+						DiagnSendData();
 #else
 						DiagnSendData();
 #endif

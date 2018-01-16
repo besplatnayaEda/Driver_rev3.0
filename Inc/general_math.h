@@ -56,6 +56,9 @@
 #define Vsupp 3.3f
 #define Effbit 4096
 
+#define FIRMWARE	0x8093U		// ver 16.1.18-3
+#define HARDWARE	0x0000U
+
 // количесиво витков в обмотках
 	// входная
 #define INH 110			//88
@@ -103,6 +106,8 @@ typedef struct StatusSystem {
 	
 	uint8_t ant_fuse[4];
 	uint8_t ant_break[4];
+	uint16_t driver_fw;			//версия по драйвера
+	uint16_t driver_hw;			//версия блока драйвера
   	
 } StatusSystem_t, *pStatusSystem_t;
 
@@ -119,6 +124,8 @@ typedef struct SettingParametrs {
 	uint8_t current_limit;			// ограничение тока(А)
 	uint8_t count_halt_limit;	// число срабатываний защиты
 	float capatity_ant[4];
+	uint8_t i_break[4];			// ток обрыва антенны
+	uint8_t i_fuse[4];			// ток короткого замыкания антенны
 	uint8_t	 repeatnum;		//
 	uint8_t	 enable;
 	uint8_t	 mode;
@@ -136,7 +143,10 @@ typedef struct SettingParametrs {
 	
 	uint8_t	 ant[4];
 	uint8_t	 antlevel[4];
+	uint16_t turns_ant[4]; // количество витков во вторичной обмотке (полное)
+	uint16_t turns_prim;	// количество витков в первичной обмотке
 	uint8_t	 supplevel;		//
+	uint8_t standby;			//режим ожидания 
 	
 } SettingParametrs_t, *pSettingParametrs_t;
 
@@ -144,102 +154,117 @@ typedef struct SettingParametrs {
 typedef enum {CT_UNDEFINED = -1, 
 							// I2C
               I2C_GET_TEMP_LVL_1_ON,
-							I2C_GET_TEMP_LVL_2_ON,
-							I2C_GET_TEMP_LVL_1_OFF,
-							I2C_GET_TEMP_LVL_2_OFF,
-							I2C_SET_TEMP_LVL_1_ON,
-							I2C_SET_TEMP_LVL_2_ON,
-							I2C_SET_TEMP_LVL_1_OFF,
-							I2C_SET_TEMP_LVL_2_OFF,
-							I2C_LED_ON,
-							I2C_LED_OFF,
+              I2C_GET_TEMP_LVL_2_ON,
+              I2C_GET_TEMP_LVL_1_OFF,
+              I2C_GET_TEMP_LVL_2_OFF,
+              I2C_SET_TEMP_LVL_1_ON,
+              I2C_SET_TEMP_LVL_2_ON,
+              I2C_SET_TEMP_LVL_1_OFF,
+              I2C_SET_TEMP_LVL_2_OFF,
+              I2C_LED_ON,
+              I2C_LED_OFF,
               // драйвер передатчика
-              U2CT_DATA,								// номер шахтера
-              U2CT_F1,									// частота 1
-              U2CT_F2,									// частота 2
-              U2CT_BR,									// бодрейт( скорость передачи данных)
-              U2CT_DEATH_TIME,					// дедтайм
-              U2CT_OVERLAP,							// перекрытие
-              U2CT_TIME_LIMIT,					// ограничение длительности
-              U2CT_DIAG_PERIOD,					// период контроля антенн
-              U2CT_CURRENT_LIMIT_A,			// ограничение тока
-              U2CT_OVER_TICK,						// количество срабатываний защиты
-              U2CT_C1,									// емкость 1
-              U2CT_C2,									// емкость 2
-              U2CT_C3,									// емкость 3
-              U2CT_C4,									// емкость 4
-							U2CT_REPEATNUM,						// число повторов передачи
-              U2CT_ENABLE,							// запуск/останов передачи
-              U2CT_MODE,								// режим работы основной/внешний
-              U2CT_SOFT_START,					// плавный пуск
-              U2CT_CURRENT_LIMIT,				// режим ограничения тока
-              U2CT_DIAG,								// режим контроля антенн
-              U2CT_CAP,									// наличие емкости
-              U2CT_MODUlATION,					// модуляция
-							U2CT_CODEMODE,						// кодировка
-              U2CT_OVERLOAD_MODE,				// режим перегрузки по току автоматический/ручной
-							U2CT_SUPPVOLTAGE,					// напряжение питания
-							U2CT_ALARM_MSG,						// запуск аварийного оповещения
-							U2CT_TEST_TAG,						// проверка тагов
-							U2CT_COMMAND,							// команда для радиуса
-              U2CT_ANTENNA_1,						// подключение антенны 1
-              U2CT_ANTENNA_2,						// подключение антенны 2
-              U2CT_ANTENNA_3,						// подключение антенны 3
-              U2CT_ANTENNA_4,						// подключение антенны 4
-              U2CT_ANT_LEVEL_1,					// напряжение на антенне 1
-              U2CT_ANT_LEVEL_2,					// напряжение на антенне 2
-              U2CT_ANT_LEVEL_3,					// напряжение на антенне 3
-              U2CT_ANT_LEVEL_4,					// напряжение на антенне 4
-							U2CT_SUPPLEVEL,						// напряжение на трансформаторе 
-              U2CT_OVERLOAD_CNT,				// число срабатывания защиты по току
-              U2CT_OVERLOAD_CURR,				// ток срабатывания защиты
-							U2CT_BITNUM,							// номер бита
-							U2CT_REPEATCUR,						// номер текущей посылки
-              U2CT_IA_1,								// ток в антенне средний 1
-              U2CT_IM_1,								// ток в антенне максимальный 1
-              U2CT_IA_2,								// ток в антенне средний 2
-              U2CT_IM_2,								// ток в антенне максимальный 2
-              U2CT_IA_3,								// ток в антенне средний 3
-              U2CT_IM_3,								// ток в антенне максимальный 3
-              U2CT_IA_4,								// ток в антенне средний 4
-              U2CT_IM_4,								// ток в антенне максимальный 4
-              U2CT_PA_1,								// мощности в антеннах
-              U2CT_PM_1,
-              U2CT_PA_2,								// средняя
-              U2CT_PM_2,								// максимальная								
-              U2CT_PA_3,
-              U2CT_PM_3,
-              U2CT_PA_4,
-              U2CT_PM_4,
-              U2CT_RA_1,								// сопротивление антенн
-              U2CT_RA_2,
-              U2CT_RA_3,
-              U2CT_RA_4,
-							U2CT_CAP1,								// уточненное значение емкостей
-							U2CT_CAP2,
-							U2CT_CAP3,
-							U2CT_CAP4,
-							U2CT_L_1,									// индуктивность антенн
-							U2CT_L_2,
-							U2CT_L_3,
-							U2CT_L_4,
-              U2CT_TRANS_OK,						// целосность передатчика 
-              U2CT_STATE,								// состояние передачи
-							U2CT_DRVENABLE,						// состояние драйвера передатчика
-							U2CT_ANT_FUSE_1,					// кз в антеннах
-              U2CT_ANT_BREAK_1,					// обрыв в антеннах
-              U2CT_ANT_FUSE_2,
-              U2CT_ANT_BREAK_2,
-              U2CT_ANT_FUSE_3,
-              U2CT_ANT_BREAK_3,
-              U2CT_ANT_FUSE_4,
-              U2CT_ANT_BREAK_4,
-							U2CT_SETUP,								// запрос/отправка настроек
-							U2CT_STATUS,							// отправка статуса
+              U2CT_DATA,//i
+              U2CT_F1,//i16
+              U2CT_F2,//i16
+              U2CT_BR,//i16
+              U2CT_DEATH_TIME,//i8
+              U2CT_OVERLAP,//i8
+              U2CT_TIME_LIMIT,//i16
+              U2CT_DIAG_PERIOD,//i16
+              U2CT_CURRENT_LIMIT_A,//i8
+              U2CT_OVER_TICK,//i8
+              U2CT_C1,//f
+              U2CT_C2,//f
+              U2CT_C3,//f
+              U2CT_C4,//f
+				U2CT_I_BREAK_ANT_1,//i8
+				U2CT_I_BREAK_ANT_2,//i8
+				U2CT_I_BREAK_ANT_3,//i8
+				U2CT_I_BREAK_ANT_4,//i8
+				U2CT_I_FUSE_ANT_1,//i8
+				U2CT_I_FUSE_ANT_2,//i8
+				U2CT_I_FUSE_ANT_3,//i8
+				U2CT_I_FUSE_ANT_4,//i8
+              U2CT_REPEATNUM,//i8
+              U2CT_ENABLE,//i8
+              U2CT_MODE,//i8
+              U2CT_SOFT_START,//i8
+              U2CT_CURRENT_LIMIT,//i8
+              U2CT_DIAG,//i8
+              U2CT_CAP,//i8
+              U2CT_MODUlATION,//i8
+              U2CT_CODE_MODE,//i8
+              U2CT_OVERLOAD_MODE,//i8
+              U2CT_SUPP_VOLTAGE,//i8
+              U2CT_ALARM_MSG,//i8
+              U2CT_TEST_TAG,//i8
+              U2CT_COMMAND,//i8
+              U2CT_ANTENNA_1,//i8
+              U2CT_ANTENNA_2,//i8
+              U2CT_ANTENNA_3,//i8
+              U2CT_ANTENNA_4,//i8
+              U2CT_ANT_LEVEL_1,//i8
+              U2CT_ANT_LEVEL_2,//i8
+              U2CT_ANT_LEVEL_3,//i8
+              U2CT_ANT_LEVEL_4,//i8
+				U2CT_TURNS_ANT_1,//i16
+				U2CT_TURNS_ANT_2,//i16
+				U2CT_TURNS_ANT_3,//i16
+				U2CT_TURNS_ANT_4,//i16
+				U2CT_TURNS_PRIM,//i16
+              U2CT_SUPPLY_LEVEL,//i8
+				U2CT_STANDBY,//i8
+              U2CT_OVERLOAD_CNT,//i8
+              U2CT_OVERLOAD_CURR,//f
+              U2CT_BITNUM,//i8
+              U2CT_REPEAT_CUR,//i8
+              U2CT_IA_1,//f
+              U2CT_IM_1,//f
+              U2CT_IA_2,//f
+              U2CT_IM_2,//f
+              U2CT_IA_3,//f
+              U2CT_IM_3,//f
+              U2CT_IA_4,//f
+              U2CT_IM_4,//f
+              U2CT_PA_1,//f
+              U2CT_PM_1,//f
+              U2CT_PA_2,//f
+              U2CT_PM_2,//f
+              U2CT_PA_3,//f
+              U2CT_PM_3,//f
+              U2CT_PA_4,//f
+              U2CT_PM_4,//f
+              U2CT_RA_1,//f
+              U2CT_RA_2,//f
+              U2CT_RA_3,//f
+              U2CT_RA_4,//f
+              U2CT_C_1,//f
+              U2CT_C_2,//f
+              U2CT_C_3,//f
+              U2CT_C_4,//f
+              U2CT_L_1,//f
+              U2CT_L_2,//f
+              U2CT_L_3,//f
+              U2CT_L_4,//f
+              U2CT_TRANS_OK,//i8
+              U2CT_STATE,//i8
+              U2CT_DRVENABLE,//i8
+              U2CT_ANT_FUSE_1,//i8
+              U2CT_ANT_BREAK_1,//i8
+              U2CT_ANT_FUSE_2,//i8
+              U2CT_ANT_BREAK_2,//i8
+              U2CT_ANT_FUSE_3,//i8
+              U2CT_ANT_BREAK_3,//i8
+              U2CT_ANT_FUSE_4,//i8
+              U2CT_ANT_BREAK_4,//i8
+				U2CT_DRIVER_FW,//i16
+				U2CT_DRIVER_HW,//i16
+              U2CT_SETUP,
+              U2CT_STATUS,
               // разное
               CT_SETTINGS_STORE,
               CT_GET_STATUS
-							
 						} Cmd_Type;
 
 // структура передаваемых значений для типа Queue_Object_Data
@@ -286,6 +311,8 @@ void SendPacketUART(void);															// отправка статуса
 void FormSTATUS(void);																	// формирование статуса 
 
 float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);	//
+
+float CalculateTransVoltage(uint8_t I_forb);
 
 // вызов метки
 void SendData(uint32_t data);						

@@ -110,6 +110,8 @@ extern float mean3;
 extern float mean4;
 extern uint32_t tmpData;
 
+extern float UI_break[];
+extern float UI_fuse[];
 
 extern float Us4;
 extern float C4;
@@ -248,14 +250,29 @@ int main(void)
 	
 	CalibrateMean();
 	
+	UI_break[0] = 10.0f;
+	UI_break[1] = 10.0f;
+	UI_break[2] = 10.0f;
+	UI_break[3] = 10.0f;
+			
+	UI_fuse[0] = 400.0f;
+	UI_fuse[1] = 400.0f;
+	UI_fuse[2] = 400.0f;
+	UI_fuse[3] = 400.0f;
 	//if(*(__IO uint32_t*)(ADR_START) != 0xFFFFFFFF)
 		//LoadSetting();
 	
 	//Us4 = CalculateSupply(0, 0, 1, 4);
 	//SETUP.cap = 1 ;
 	//C4 = 8.55e-6f;
+
+	volatile uint32_t *UniqueID = (uint32_t *)0x1FFFF7AC;
+	volatile uint32_t __UniqueID[3];
+	__UniqueID[0] = UniqueID[0];
+	__UniqueID[1] = UniqueID[1];
+	__UniqueID[2] = UniqueID[2];
 	
-	
+	uint32_t CRCUniqueID = HAL_CRC_Calculate(&hcrc,(uint32_t*)&UniqueID,sizeof(UniqueID)/sizeof(uint32_t));
 	
 	UART2_RecvType = UART2_RECV_CMD;
 	HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
@@ -263,7 +280,8 @@ int main(void)
 	
 	SETUP.softsrart = ON;
 	
-	
+	STATUS.driver_hw = FIRMWARE;
+	STATUS.driver_hw = (uint16_t)CRCUniqueID;
 	STATUS.trans_ok = 1;
 	STATUS.drvenable = 1;
 	CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
@@ -278,11 +296,11 @@ int main(void)
 		SETUP.softsrart = 0;
 		SoftStart = 0;
 		RepeatNum = 11;
-		f1 = 769;
-		f2 = 719;
-		BR = 3;
+		f1 = 984;
+		f2 = 966;
+		BR = 2;
 		CodeMode = 2;
-		tmpData = 55;
+		tmpData = 1000;
 		Parsing(55,0);
 	#endif
   /* USER CODE END 2 */
