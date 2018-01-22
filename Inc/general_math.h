@@ -56,7 +56,7 @@
 #define Vsupp 3.3f
 #define Effbit 4096
 
-#define FIRMWARE	0x8093U		// ver 16.1.18-3
+#define FIRMWARE	0xB093U		// ver 22.1.18-3
 #define HARDWARE	0x0000U
 
 // количесиво витков в обмотках
@@ -312,7 +312,7 @@ void FormSTATUS(void);																	// формирование статуса
 
 float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);	//
 
-float CalculateTransVoltage(uint8_t I_forb);
+float CalculateTransVoltage(uint8_t I_forb, uint8_t Utype);
 
 // вызов метки
 void SendData(uint32_t data);						

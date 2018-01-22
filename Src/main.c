@@ -259,6 +259,12 @@ int main(void)
 	UI_fuse[1] = 400.0f;
 	UI_fuse[2] = 400.0f;
 	UI_fuse[3] = 400.0f;
+	
+	SETUP.turns_ant[0] = O1H;
+	SETUP.turns_ant[1] = O2H;
+	SETUP.turns_ant[2] = O3H;
+	SETUP.turns_ant[3] = O4H;
+	SETUP.turns_prim   = INL;
 	//if(*(__IO uint32_t*)(ADR_START) != 0xFFFFFFFF)
 		//LoadSetting();
 	

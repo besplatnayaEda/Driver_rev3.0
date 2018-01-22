@@ -1835,12 +1835,23 @@ void GetVoltage(void)
 	}
 	
 	
-	float CalculateTransVoltage(uint8_t I_forb)
+	float CalculateTransVoltage(uint8_t I_forb, uint8_t Utype)
 	{
 		float f;
 		float U_forb;
-		f = (f1+f2)/2;
-		U_forb = I_forb*(2*PI*f*L0);	
+		if(Utype)
+		{
+			f = (f1+f2)/2;
+			U_forb = I_forb*(2*PI*f*L0);
+			if(I_forb == 0)
+				U_forb = 1.65f;
+		}
+		else
+		{
+			f = (f1+f2)/2;
+			U_forb = I_forb*(2*PI*f*L0);
+			U_forb = 0.001f;
+		}
 		
 		return U_forb;
 	}
@@ -2251,37 +2262,37 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			SETUP.capatity_ant[3] = UART2RecvData.value.f;
 			C4 = SETUP.capatity_ant[3]*1e-6f;
 			break;
-		case U2CT_I_BREAK_ANT_1:
+		case U2CT_I_BREAK_ANT_1:										// ток обрыва антенны 1
 			SETUP.i_break[0] = UART2RecvData.value.i;
-			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0]);
+			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0],0);
 			break;
-		case U2CT_I_BREAK_ANT_2:
+		case U2CT_I_BREAK_ANT_2:										// ток обрыва антенны 2
 			SETUP.i_break[1] = UART2RecvData.value.i;
-			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1]);
+			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1],0);
 			break;
-		case U2CT_I_BREAK_ANT_3:
+		case U2CT_I_BREAK_ANT_3:										// ток обрыва антенны 3
 			SETUP.i_break[2] = UART2RecvData.value.i;
-			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2]);
+			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2],0);
 			break;
-		case U2CT_I_BREAK_ANT_4:
+		case U2CT_I_BREAK_ANT_4:										// ток обрыва антенны 4
 			SETUP.i_break[3] = UART2RecvData.value.i;
-			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3]);
+			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3],0);
 			break;
-		case U2CT_I_FUSE_ANT_1:
+		case U2CT_I_FUSE_ANT_1:											// ток кз антенны 1
 			SETUP.i_fuse[0] = UART2RecvData.value.i;
-			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0]);
+			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0],1);
 			break;
-		case U2CT_I_FUSE_ANT_2:
+		case U2CT_I_FUSE_ANT_2:											// ток кз антенны 2
 			SETUP.i_fuse[1] = UART2RecvData.value.i;
-			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1]);
+			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1],1);
 			break;
-		case U2CT_I_FUSE_ANT_3:
+		case U2CT_I_FUSE_ANT_3:											// ток кз антенны 3
 			SETUP.i_fuse[2] = UART2RecvData.value.i;
-			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2]);
+			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2],1);
 			break;
-		case U2CT_I_FUSE_ANT_4:
+		case U2CT_I_FUSE_ANT_4:											// ток кз антенны 4
 			SETUP.i_fuse[3] = UART2RecvData.value.i;
-			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3]);
+			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3],1);
 			break;
 		case U2CT_REPEATNUM:																					// число повторов передачи
 			SETUP.repeatnum = UART2RecvData.value.i;
@@ -2422,18 +2433,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			break;
 		case U2CT_TURNS_ANT_1:
 			SETUP.turns_ant[0] = UART2RecvData.value.i;
+			Us1 = CalculateSupply(SETUP.antlevel[0],SETUP.supplevel,SETUP.suppvoltage,1);
 			break;
 		case U2CT_TURNS_ANT_2:
 			SETUP.turns_ant[1] = UART2RecvData.value.i;
+			Us2 = CalculateSupply(SETUP.antlevel[1],SETUP.supplevel,SETUP.suppvoltage,2);
 			break;
 		case U2CT_TURNS_ANT_3:
 			SETUP.turns_ant[2] = UART2RecvData.value.i;
+			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
 			break;
 		case U2CT_TURNS_ANT_4:
 			SETUP.turns_ant[3] = UART2RecvData.value.i;
+			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			break;
 		case U2CT_TURNS_PRIM:
 			SETUP.turns_prim = UART2RecvData.value.i;
+			Us1 = CalculateSupply(SETUP.antlevel[0],SETUP.supplevel,SETUP.suppvoltage,1);
+			Us2 = CalculateSupply(SETUP.antlevel[1],SETUP.supplevel,SETUP.suppvoltage,2);
+			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
+			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			break;
 		case U2CT_SUPPLY_LEVEL:																					// напряжение на входной обмотке высокое/низкое
 			SETUP.supplevel = UART2RecvData.value.i;
@@ -2444,6 +2463,29 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			break;
 		case U2CT_STANDBY:
 			SETUP.standby = UART2RecvData.value.i;
+			if(SETUP.standby)
+			{
+				STATUS.drvenable = 0;
+				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+				HAL_TIM_OC_Stop_IT(&htim16,TIM_CHANNEL_1);
+				sec = 0;
+				min = 0;
+			}
+			else
+			{
+				STATUS.drvenable = 1;
+				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+				sec = 0;
+				min = 0;
+				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
+				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
+				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
+	
+				HAL_Delay(500);
+	
+				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_RESET);
+			}
 			break;
 		case U2CT_SETUP:
 			f1 = SETUP.freq1;
@@ -2466,15 +2508,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Us3 = CalculateSupply(SETUP.antlevel[2],SETUP.supplevel,SETUP.suppvoltage,3);
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			
-			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0]);
-			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1]);
-			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2]);
-			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3]);
+			UI_break[0] = CalculateTransVoltage(SETUP.i_break[0],0);
+			UI_break[1] = CalculateTransVoltage(SETUP.i_break[1],0);
+			UI_break[2] = CalculateTransVoltage(SETUP.i_break[2],0);
+			UI_break[3] = CalculateTransVoltage(SETUP.i_break[3],0);
 			
-			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0]);
-			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1]);
-			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2]);
-			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3]);
+			UI_fuse[0] = CalculateTransVoltage(SETUP.i_fuse[0],1);
+			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1],1);
+			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2],1);
+			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3],1);
 			//SaveSetting();
 			break;
 		case U2CT_DRIVER_FW:
@@ -2499,6 +2541,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum)
 	{
 		float Utmp;
+		int OutH[4], OutL[4], InH, InL;
+		
+		OutH[0] = SETUP.turns_ant[0];
+		OutH[1] = SETUP.turns_ant[1];
+		OutH[2] = SETUP.turns_ant[2];
+		OutH[3] = SETUP.turns_ant[3];
+		
+		OutL[0] = SETUP.turns_ant[0]/2;
+		OutL[1] = SETUP.turns_ant[1]/2;
+		OutL[2] = SETUP.turns_ant[2]/2;
+		OutL[3] = SETUP.turns_ant[3]/2;
+		
+		InH = SETUP.turns_prim;
+		InL = SETUP.turns_prim*0.73f;
 		
 		if(SUPlvl == 0)
 			Us = 310;
@@ -2510,50 +2566,50 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			case 1:
 				if(ANTlvl == 1){
 					if(TRAlvl == 1)
-						Utmp = Us*O1H/INH;
+						Utmp = Us*OutH[0]/InH;
 					else
-						Utmp = Us*O1H/INL;}
+						Utmp = Us*OutH[0]/InL;}
 				else{
 					if(TRAlvl == 1)
-						Utmp = Us*O1L/INH;
+						Utmp = Us*OutL[0]/InH;
 					else
-						Utmp = Us*O1L/INL;}
+						Utmp = Us*OutL[0]/InL;}
 				break;
 			case 2:
 				if(ANTlvl == 1){
 					if(TRAlvl == 1)
-						Utmp = Us*O2H/INH;
+						Utmp = Us*OutH[1]/InH;
 					else
-						Utmp = Us*O2H/INL;}
+						Utmp = Us*OutH[1]/InL;}
 				else{
 					if(TRAlvl == 1)
-						Utmp = Us*O2L/INH;
+						Utmp = Us*OutL[1]/InH;
 					else
-						Utmp = Us*O2L/INL;}
+						Utmp = Us*OutL[1]/InL;}
 				break;
 			case 3:
 				if(ANTlvl == 1){
 					if(TRAlvl == 1)
-						Utmp = Us*O3H/INH;
+						Utmp = Us*OutH[2]/InH;
 					else
-						Utmp = Us*O3H/INL;}
+						Utmp = Us*OutH[2]/InL;}
 				else{
 					if(TRAlvl == 1)
-						Utmp = Us*O3L/INH;
+						Utmp = Us*OutL[2]/InH;
 					else
-						Utmp = Us*O3L/INL;}
+						Utmp = Us*OutL[2]/InL;}
 				break;
 			case 4:
 				if(ANTlvl == 1){
 					if(TRAlvl == 1)
-						Utmp = Us*O4H/INH;
+						Utmp = Us*OutH[3]/InH;
 					else
-						Utmp = Us*O4H/INL;}
+						Utmp = Us*OutH[3]/InL;}
 				else{
 					if(TRAlvl == 1)
-						Utmp = Us*O4L/INH;
+						Utmp = Us*OutL[3]/InH;
 					else
-						Utmp = Us*O4L/INL;}
+						Utmp = Us*OutL[3]/InL;}
 				break;
 		}
 		return Utmp;
