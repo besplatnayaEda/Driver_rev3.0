@@ -250,15 +250,15 @@ int main(void)
 	
 	CalibrateMean();
 	
-	UI_break[0] = 10.0f;
-	UI_break[1] = 10.0f;
-	UI_break[2] = 10.0f;
-	UI_break[3] = 10.0f;
+	UI_break[0] = 10e-3f;
+	UI_break[1] = 10e-3f;
+	UI_break[2] = 10e-3f;
+	UI_break[3] = 10e-3f;
 			
-	UI_fuse[0] = 400.0f;
-	UI_fuse[1] = 400.0f;
-	UI_fuse[2] = 400.0f;
-	UI_fuse[3] = 400.0f;
+	UI_fuse[0] = 400e-3f;
+	UI_fuse[1] = 400e-3f;
+	UI_fuse[2] = 400e-3f;
+	UI_fuse[3] = 400e-3f;
 	
 	SETUP.turns_ant[0] = O1H;
 	SETUP.turns_ant[1] = O2H;
@@ -286,10 +286,13 @@ int main(void)
 	
 	SETUP.softsrart = ON;
 	
-	STATUS.driver_hw = FIRMWARE;
+	STATUS.driver_fw = FIRMWARE;
 	STATUS.driver_hw = (uint16_t)CRCUniqueID;
 	STATUS.trans_ok = 1;
 	STATUS.drvenable = 1;
+	CommandReply(U2CT_DRIVER_FW, 'i', STATUS.driver_fw);
+	CommandReply(U2CT_DRIVER_HW, 'i', STATUS.driver_hw);
+	CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
 	CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 	
 	

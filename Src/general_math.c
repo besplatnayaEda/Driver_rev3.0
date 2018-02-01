@@ -301,7 +301,7 @@ void SetTiming(void)
 void StartPWM(void)
 	{
 			//CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
-			
+			defcnt = 0;
 			CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			HAL_TIM_OC_Stop_IT(&htim16,TIM_CHANNEL_1);
 			sec = 0;
@@ -1839,18 +1839,19 @@ void GetVoltage(void)
 	{
 		float f;
 		float U_forb;
-		if(Utype)
+		
+		f = (f1+f2)/2;
+		
+		if(I_forb == 0)
 		{
-			f = (f1+f2)/2;
-			U_forb = I_forb*(2*PI*f*L0);
-			if(I_forb == 0)
+			if(Utype)
 				U_forb = 1.65f;
+			else
+				U_forb = 0.0f;
 		}
 		else
 		{
-			f = (f1+f2)/2;
-			U_forb = I_forb*(2*PI*f*L0);
-			U_forb = 0.001f;
+			U_forb = 1.41f*I_forb*2*PI*f*L0;
 		}
 		
 		return U_forb;
@@ -2305,17 +2306,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		{
 			
 			if(Mode == MAIN){
-				if(tmpData == 0)
-				{
-					SETUP.alarm_msg = 1;
-					DiagnSendAlarm();
-				}
-				else if(tmpData == 65535)
-				{
-					SETUP.alarm_msg = 0;
-					StopAlarm();
-				}
-				else
+//				if(tmpData == 0)
+//				{
+//					SETUP.alarm_msg = 1;
+//					DiagnSendAlarm();
+//				}
+//				else if(tmpData == 65535)
+//				{
+//					SETUP.alarm_msg = 0;
+//					StopAlarm();
+//				}
+//				else
 					//SendData(tmpData);
 				DiagnSendData();
 			}
@@ -2478,13 +2479,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				sec = 0;
 				min = 0;
 				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
-				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
-				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
+//				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
+//				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
 	
-				HAL_Delay(500);
-	
-				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_RESET);
-				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_RESET);
+
+				
 			}
 			break;
 		case U2CT_SETUP:
@@ -2553,8 +2552,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		OutL[2] = SETUP.turns_ant[2]/2;
 		OutL[3] = SETUP.turns_ant[3]/2;
 		
-		InH = SETUP.turns_prim;
-		InL = SETUP.turns_prim*0.73f;
+		InH = SETUP.turns_prim*0.73f;
+		InL = SETUP.turns_prim;
 		
 		if(SUPlvl == 0)
 			Us = 310;
@@ -2647,7 +2646,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 #else
 				StopPWM();
 #endif
-				
+				defcnt = 0;
 				if(def == 1)
 				{
 					HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_RESET);
@@ -2657,25 +2656,32 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				break;
 #endif
 			case GPIO_PIN_12:							// защита
-				def = 1;
-				StopPWM();
 				defcnt++;
+				if (defcnt >= SETUP.count_halt_limit)
+				{
+					def = 1;
+					StopPWM();
+					STATUS.trans_ok = 0;
+					STATUS.overload_cnt = defcnt;
+					STATUS.overload_curr = 0;
+					HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
+					CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
+					CommandReply(U2CT_OVERLOAD_CNT, 'i', STATUS.overload_cnt);
+					for(uint8_t i = 0; i < sizeof(STATUS.im[0]); i++)
+					{
+						if(STATUS.im[i] > STATUS.overload_curr)
+							STATUS.overload_curr = STATUS.im[i];
+					}
+					CommandReply(U2CT_OVERLOAD_CURR, 'f', STATUS.overload_curr);
+				}
+				else
+				{
 				STATUS.overload_cnt = defcnt;
-				STATUS.trans_ok = 0;
+				STATUS.trans_ok = 1;
 				STATUS.overload_curr = 0;
-			
-			for(uint8_t i = 0; i < sizeof(STATUS.im[0]); i++)
-			{
-				if(STATUS.im[i] > STATUS.overload_curr)
-					STATUS.overload_curr = STATUS.im[i];
-			}
-			
-		
-			// отправка состояний в блок управления
 				CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
 				CommandReply(U2CT_OVERLOAD_CNT, 'i', STATUS.overload_cnt);
-				CommandReply(U2CT_OVERLOAD_CURR, 'f', STATUS.overload_curr);
-				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
+				}
 			break;
 		}
 

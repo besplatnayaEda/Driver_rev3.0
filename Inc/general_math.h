@@ -29,7 +29,7 @@
 
 // порог контроля антенн
 #define FUSE				400e-3f				// замыкание
-#define BREAK				10e-3f		// обрыв
+#define BREAK				5e-3f		// обрыв
 
 #define MEAN_CNT		1000
 
@@ -56,7 +56,7 @@
 #define Vsupp 3.3f
 #define Effbit 4096
 
-#define FIRMWARE	0xB093U		// ver 22.1.18-3
+#define FIRMWARE	0x0913U		// ver 1.2.18-3
 #define HARDWARE	0x0000U
 
 // количесиво витков в обмотках
