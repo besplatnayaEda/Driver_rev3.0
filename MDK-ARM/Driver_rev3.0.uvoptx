@@ -168,7 +168,7 @@
           <Type>0</Type>
           <LineNumber>313</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134249240</Address>
+          <Address>134249292</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,7 +184,7 @@
           <Type>0</Type>
           <LineNumber>322</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134249282</Address>
+          <Address>134249334</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -200,7 +200,7 @@
           <Type>0</Type>
           <LineNumber>485</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134249444</Address>
+          <Address>134249496</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -214,25 +214,9 @@
         <Bp>
           <Number>3</Number>
           <Type>0</Type>
-          <LineNumber>2489</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134240536</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\general_math.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Driver_rev3\../Src/general_math.c\2489</Expression>
-        </Bp>
-        <Bp>
-          <Number>4</Number>
-          <Type>0</Type>
           <LineNumber>288</LineNumber>
           <EnabledFlag>0</EnabledFlag>
-          <Address>134249162</Address>
+          <Address>134249214</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -242,6 +226,22 @@
           <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\stm32f3xx_it.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Driver_rev3\../Src/stm32f3xx_it.c\288</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>2267</LineNumber>
+          <EnabledFlag>0</EnabledFlag>
+          <Address>134239660</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\general_math.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\Driver_rev3\../Src/general_math.c\2267</Expression>
         </Bp>
         <Bp>
           <Number>5</Number>
@@ -668,347 +668,187 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>psk,0x0A</ItemText>
+          <ItemText>Position,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>I4</ItemText>
+          <ItemText>Data,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>L4</ItemText>
+          <ItemText>n,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>R4</ItemText>
+          <ItemText>Data[Position]</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>P4</ItemText>
+          <ItemText>STATUS,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tmp,0x0A</ItemText>
+          <ItemText>sec,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>tmpData,0x0A</ItemText>
+          <ItemText>min,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Position,0x0A</ItemText>
+          <ItemText>freq,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>12</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Data,0x0A</ItemText>
+          <ItemText>diag,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>13</count>
           <WinNumber>1</WinNumber>
-          <ItemText>n,0x0A</ItemText>
+          <ItemText>freq,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>14</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Data[Position]</ItemText>
+          <ItemText>TimeLimit_u,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>15</count>
           <WinNumber>1</WinNumber>
-          <ItemText>STATUS,0x0A</ItemText>
+          <ItemText>Period,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>16</count>
           <WinNumber>1</WinNumber>
-          <ItemText>sec,0x0A</ItemText>
+          <ItemText>Pulse_1,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>17</count>
           <WinNumber>1</WinNumber>
-          <ItemText>min,0x0A</ItemText>
+          <ItemText>Pulse_2,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>18</count>
           <WinNumber>1</WinNumber>
-          <ItemText>freq,0x0A</ItemText>
+          <ItemText>Pulse_3,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>19</count>
           <WinNumber>1</WinNumber>
-          <ItemText>diag,0x0A</ItemText>
+          <ItemText>Pulse_4,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>20</count>
           <WinNumber>1</WinNumber>
-          <ItemText>I4a</ItemText>
+          <ItemText>TransMode,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>21</count>
           <WinNumber>1</WinNumber>
-          <ItemText>DiagCNT,0x0A</ItemText>
+          <ItemText>SETUP,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>22</count>
           <WinNumber>1</WinNumber>
-          <ItemText>R4a</ItemText>
+          <ItemText>mean1</ItemText>
         </Ww>
         <Ww>
           <count>23</count>
           <WinNumber>1</WinNumber>
-          <ItemText>P4a</ItemText>
+          <ItemText>mean2</ItemText>
         </Ww>
         <Ww>
           <count>24</count>
           <WinNumber>1</WinNumber>
-          <ItemText>C4corr</ItemText>
+          <ItemText>mean3</ItemText>
         </Ww>
         <Ww>
           <count>25</count>
           <WinNumber>1</WinNumber>
-          <ItemText>U4rise1</ItemText>
+          <ItemText>mean4</ItemText>
         </Ww>
         <Ww>
           <count>26</count>
           <WinNumber>1</WinNumber>
-          <ItemText>U4rise2</ItemText>
+          <ItemText>RepeatNum,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>27</count>
           <WinNumber>1</WinNumber>
-          <ItemText>U4fall1</ItemText>
+          <ItemText>Data,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>28</count>
           <WinNumber>1</WinNumber>
-          <ItemText>U4fall2</ItemText>
+          <ItemText>SendForm</ItemText>
         </Ww>
         <Ww>
           <count>29</count>
           <WinNumber>1</WinNumber>
-          <ItemText>L4</ItemText>
+          <ItemText>alarm_pause_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>30</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Us4</ItemText>
+          <ItemText>alarm_trans_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>31</count>
           <WinNumber>1</WinNumber>
-          <ItemText>freq,0x0A</ItemText>
+          <ItemText>State,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>32</count>
           <WinNumber>1</WinNumber>
-          <ItemText>psk,0x0A</ItemText>
+          <ItemText>BR</ItemText>
         </Ww>
         <Ww>
           <count>33</count>
           <WinNumber>1</WinNumber>
-          <ItemText>TimeLimit,0x0A</ItemText>
+          <ItemText>huart1,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>34</count>
           <WinNumber>1</WinNumber>
-          <ItemText>TimeLimit_u,0x0A</ItemText>
+          <ItemText>UI_fuse</ItemText>
         </Ww>
         <Ww>
           <count>35</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Period,0x0A</ItemText>
+          <ItemText>UI_break</ItemText>
         </Ww>
         <Ww>
           <count>36</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Pulse_1,0x0A</ItemText>
+          <ItemText>Us1</ItemText>
         </Ww>
         <Ww>
           <count>37</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Pulse_2,0x0A</ItemText>
+          <ItemText>Us2</ItemText>
         </Ww>
         <Ww>
           <count>38</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Pulse_3,0x0A</ItemText>
+          <ItemText>Us3</ItemText>
         </Ww>
         <Ww>
           <count>39</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Pulse_4,0x0A</ItemText>
+          <ItemText>Us4</ItemText>
         </Ww>
         <Ww>
           <count>40</count>
           <WinNumber>1</WinNumber>
-          <ItemText>TIM1-&gt;CNT,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>41</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>TIM7-&gt;CNT,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>42</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>TransMode,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>43</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>diag,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>44</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SETUP,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>45</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>C4</ItemText>
-        </Ww>
-        <Ww>
-          <count>46</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>C1,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>47</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>C2</ItemText>
-        </Ww>
-        <Ww>
-          <count>48</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Tick,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>49</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mean1</ItemText>
-        </Ww>
-        <Ww>
-          <count>50</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mean2</ItemText>
-        </Ww>
-        <Ww>
-          <count>51</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mean3</ItemText>
-        </Ww>
-        <Ww>
-          <count>52</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>mean4</ItemText>
-        </Ww>
-        <Ww>
-          <count>53</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>RepeatNum,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>54</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>dataR1,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>55</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>BaseLenght,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>56</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>DataLenght,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>57</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>tind,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>58</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>ind,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>59</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Position,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>60</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Data[Position]</ItemText>
-        </Ww>
-        <Ww>
-          <count>61</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Data,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>62</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>psk,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>63</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SystemCoreClock/((TIM1-&gt;PSC+1)*4*f1);</ItemText>
-        </Ww>
-        <Ww>
-          <count>64</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SystemCoreClock/((TIM1-&gt;PSC+1)*4*f2);</ItemText>
-        </Ww>
-        <Ww>
-          <count>65</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>aCNT,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>66</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SystemCoreClock,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>67</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SendForm</ItemText>
-        </Ww>
-        <Ww>
-          <count>68</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>alarm_pause_cnt,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>69</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>alarm_trans_cnt,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>70</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>State</ItemText>
-        </Ww>
-        <Ww>
-          <count>71</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>BR</ItemText>
-        </Ww>
-        <Ww>
-          <count>72</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>huart1,0x0A</ItemText>
+          <ItemText>alarm_pause_cnt</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
