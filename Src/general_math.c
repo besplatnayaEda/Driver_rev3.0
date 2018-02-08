@@ -1491,7 +1491,7 @@ void GetVoltage(void)
 				U2rise1 = (ADC2buff)*Vsupp/Effbit-mean2;
 				U3rise1 = (ADC3buff)*Vsupp/Effbit-mean3;
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
-			
+#ifndef DEBUG
 			if(SETUP.ant[0] == 1)
 				{
 					if(fabs(U1rise1) < BREAK)
@@ -1566,6 +1566,7 @@ void GetVoltage(void)
 				}
 				
 							
+#endif
 				L1 = CalculateL(U1rise1,Us1);
 				L2 = CalculateL(U2rise1,Us2);
 				L3 = CalculateL(U3rise1,Us3);
@@ -1604,7 +1605,9 @@ void GetVoltage(void)
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
 			
 			///*									//	проверка антенн на целостность во время передачи
+#ifndef DEBUG
 			CheckAntState(fabs(U1rise1), fabs(U2rise1), fabs(U3rise1), fabs(U4rise1));
+#endif
 			//*/
 				I1 = CalculateI(U1rise1);
 				I2 = CalculateI(U2rise1);
@@ -1695,8 +1698,9 @@ void GetVoltage(void)
 				U4fall1 -= mean4;
 			
 			///*													//	проверка антенн на целостность во время передачи
+#ifndef DEBUG
 			CheckAntState(fabs(U1rise2), fabs(U2rise2), fabs(U3rise2), fabs(U4rise2));
-			
+#endif
 				//*/										//	проверка антенн на целостность во время передачи
 			
 				I1 = CalculateI(U1rise2);
@@ -2150,7 +2154,24 @@ void GetVoltage(void)
 		P2m = 0;
 		P3m = 0;
 		P4m = 0;		
-	
+#ifdef DEBUG
+
+					STATUS.ant_break[0] = 0;
+					STATUS.ant_fuse[0] = 0;
+					
+					STATUS.ant_break[1] = 0;
+					STATUS.ant_fuse[1] = 0;
+				
+					STATUS.ant_break[2] = 0;
+					STATUS.ant_fuse[2] = 0;
+					
+					STATUS.ant_break[3] = 0;
+					STATUS.ant_fuse[3] = 0;
+				
+							
+
+
+#endif
 	}
 	
 		
@@ -2623,11 +2644,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			case GPIO_PIN_10:							// кнопка запуск
 				if((def == 0)&&(STATUS.trans_state == 0)&&(sec > 0)){
 					if(Mode == MAIN){
-						if((tmpData == 0) || (tmpData == 65535))
-							DiagnSendAlarm();
-						else
+						//if((tmpData == 0) || (tmpData == 65535))
+						//	DiagnSendAlarm();
+						//else
 #ifdef DEBUG
-						SETUP.alarm_msg = 1;
+						//SETUP.alarm_msg = 1;
 //						DiagnSendAlarm();
 						DiagnSendData();
 #else
