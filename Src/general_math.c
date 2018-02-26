@@ -1504,7 +1504,7 @@ void GetVoltage(void)
 				U2rise1 = (ADC2buff)*Vsupp/Effbit-mean2;
 				U3rise1 = (ADC3buff)*Vsupp/Effbit-mean3;
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
-			
+#ifndef DEBUG
 			// определение целосности антенны по первому импульсу
 			if(SETUP.ant[0] == 1)
 				{
@@ -1580,17 +1580,6 @@ void GetVoltage(void)
 				}
 				
 							
-//				L1 = CalculateL(U1rise1,Us1);
-//				L2 = CalculateL(U2rise1,Us2);
-//				L3 = CalculateL(U3rise1,Us3);
-//				L4 = CalculateL(U4rise1,Us4);
-//				
-//												
-//				C1corr = CalculateC(L1);
-//				C2corr = CalculateC(L2);
-//				C3corr = CalculateC(L3);
-//				C4corr = CalculateC(L4);
-				
 				
 				
 				break;
@@ -1618,7 +1607,9 @@ void GetVoltage(void)
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
 			
 			///*									//	проверка антенн на целостность во врем€ передачи
+#ifndef DEBUG
 			CheckAntState(fabs(U1rise1), fabs(U2rise1), fabs(U3rise1), fabs(U4rise1));
+#endif
 			//*/
 				I1 = CalculateI(U1rise1);
 				I2 = CalculateI(U2rise1);
@@ -1651,6 +1642,7 @@ void GetVoltage(void)
 				U3fall2 -= mean3;
 				U4fall2 -= mean4;
 				
+
 //				if(STATUS.trans_state == 2){
 				L1 = CalculateL(U1rise1,U1fall2,Us1);
 				L2 = CalculateL(U2rise1,U2fall2,Us2);
@@ -1677,6 +1669,7 @@ void GetVoltage(void)
 				R3 = CalculateR(U3rise2,U3fall2, C3, L3);
 				R4 = CalculateR(U4rise2,U4fall2, C4, L4);
 					
+
 				R1a += R1;
 				R2a += R2;
 				R3a += R3;
@@ -1729,8 +1722,9 @@ void GetVoltage(void)
 				U4fall1 -= mean4;
 			
 			///*													//	проверка антенн на целостность во врем€ передачи
+#ifndef DEBUG
 			CheckAntState(fabs(U1rise2), fabs(U2rise2), fabs(U3rise2), fabs(U4rise2));
-			
+#endif
 				//*/										//	проверка антенн на целостность во врем€ передачи
 			
 				I1 = CalculateI(U1rise2);
@@ -1753,6 +1747,7 @@ void GetVoltage(void)
 					I4m = I4;
 			
 				
+
 //				if(STATUS.trans_state == 2){
 
 				L1 = CalculateL(U1rise1,U1fall2,Us1);
@@ -1780,6 +1775,7 @@ void GetVoltage(void)
 				R3 = CalculateR(U3rise1,U3fall1, C3, L3);
 				R4 = CalculateR(U4rise1,U4fall1, C4, L4);
 				
+
 				R1a += R1;
 				R2a += R2;
 				R3a += R3;
@@ -1817,11 +1813,13 @@ void GetVoltage(void)
 	
 	
 			// расчет индуктивности
+
 	float CalculateL(float Ur, float Uf, float Usupp)
 	{
 		
 		float Ltmp = 0;
 			
+
 
 		Ltmp = fabsf(fabsf(Ur)-fabsf(Uf))/(2.0f*L0*Usupp);
 		
@@ -2099,10 +2097,13 @@ void GetVoltage(void)
 		{
 			STATUS.ia[0] = 0.5f*I1a/DiagCNT;
 			STATUS.im[0] = I1m;
+
+
 			STATUS.l[0]  = 0.5f*L1a*1000/DiagCNT;						//1000 в м√н
 			STATUS.ra[0] = 0.5f*R1a/DiagCNT;
 			STATUS.pa[0] = 0.5f*P1a/(DiagCNT*1000);				// в к¬т
 			STATUS.pm[0] = P1m/1000;								// в к¬т
+
 			STATUS.c[0]  = 0.5f*C1cra/DiagCNT;							// в мк‘
 		}
 		else
@@ -2120,10 +2121,13 @@ void GetVoltage(void)
 		{
 			STATUS.ia[1] = 0.5f*I2a/DiagCNT;
 			STATUS.im[1] = I2m;
+
+
 			STATUS.l[1]  = 0.5f*L2a*1000/DiagCNT;
 			STATUS.ra[1] = 0.5f*R2a/DiagCNT;
 			STATUS.pa[1] = 0.5f*P2a/(DiagCNT*1000);
 			STATUS.pm[1] = P2m/1000;
+
 			STATUS.c[1]  = 0.5f*C2cra/DiagCNT;
 		}
 		else
@@ -2141,10 +2145,13 @@ void GetVoltage(void)
 		{
 			STATUS.ia[2] = 0.5f*I3a/DiagCNT;
 			STATUS.im[2] = I3m;
+
+
 			STATUS.l[2]  = 0.5f*L3a*1000/DiagCNT;
 			STATUS.ra[2] = 0.5f*R3a/DiagCNT;
 			STATUS.pa[2] = 0.5f*P3a/(DiagCNT*1000);
 			STATUS.pm[2] = P3m/1000;
+
 			STATUS.c[2]  = 0.5f*C3cra/DiagCNT;
 		}
 		else
@@ -2162,10 +2169,13 @@ void GetVoltage(void)
 		{
 			STATUS.ia[3] = 0.5f*I4a/DiagCNT;
 			STATUS.im[3] = I4m;
+
+
 			STATUS.l[3]  = 0.5f*L4a*1000/DiagCNT;
 			STATUS.ra[3] = 0.5f*R4a/DiagCNT;
 			STATUS.pa[3] = 0.5f*P4a/(DiagCNT*1000);
 			STATUS.pm[3] = P4m/1000;
+
 			STATUS.c[3]  = 0.5f*C4cra/DiagCNT;
 		}
 		else
@@ -2186,6 +2196,7 @@ void GetVoltage(void)
 		I3a = 0;
 		I4a = 0;
 		
+
 		L1a = 0;
 		L2a = 0;
 		L3a = 0;
@@ -2199,6 +2210,7 @@ void GetVoltage(void)
 		R1a = 0;
 		R2a = 0;
 		R3a = 0;
+
 		R4a = 0;
 		
 		P1a = 0;
@@ -2215,7 +2227,24 @@ void GetVoltage(void)
 		P2m = 0;
 		P3m = 0;
 		P4m = 0;		
-	
+#ifdef DEBUG
+
+					STATUS.ant_break[0] = 0;
+					STATUS.ant_fuse[0] = 0;
+					
+					STATUS.ant_break[1] = 0;
+					STATUS.ant_fuse[1] = 0;
+				
+					STATUS.ant_break[2] = 0;
+					STATUS.ant_fuse[2] = 0;
+					
+					STATUS.ant_break[3] = 0;
+					STATUS.ant_fuse[3] = 0;
+				
+							
+
+
+#endif
 	}
 	
 		
@@ -2688,11 +2717,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			case GPIO_PIN_10:							// кнопка запуск
 				if((def == 0)&&(STATUS.trans_state == 0)&&(sec > 0)){
 					if(Mode == MAIN){
-						if((tmpData == 0) || (tmpData == 65535))
-							DiagnSendAlarm();
-						else
+
+
+
+						//if((tmpData == 0) || (tmpData == 65535))
+						//	DiagnSendAlarm();
+						//else
 #ifdef DEBUG
-						SETUP.alarm_msg = 1;
+
+						//SETUP.alarm_msg = 1;
 //						DiagnSendAlarm();
 						DiagnSendData();
 #else
