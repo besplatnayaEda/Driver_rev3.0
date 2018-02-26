@@ -342,7 +342,7 @@ void DiagnSendComandnData(void);
 void Parsing(uint32_t data, uint8_t command);
 
 // расчет параметров
-float CalculateL(float Ur, float Usupp);
+float CalculateL(float Ur, float Uf, float Usupp);
 float CalculateI(float Ur);
 float CalculateR(float Ur, float Uf, float Cap, float L);
 float CalculateP(float I, float R);
