@@ -193,6 +193,11 @@ uint8_t	 RiseDelay = 80;
 uint8_t	 FallDelay = 80;
 uint8_t	 PauseDelay = 80;
 
+	// переменные для синхронизации
+uint8_t		TimeOut_en;
+uint16_t	TimeOut_cnt;
+
+
 // параметры для контроля в режиме работы 
 float		 UIrise[4];
 float		 UI_break[4];
@@ -1226,13 +1231,18 @@ void Diag(void)
 		
 		SoftStart = OFF;//
 		
+		// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
 		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+		TimeOut_en = 1;
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*4);						// установка длительности диагностики
 	
 		TIM6 -> CNT = 0;
 		
-		if(def == 0)
-			HAL_TIM_Base_Start_IT(&htim6);															// запуск диагностики
+//		if(def == 0)
+//			HAL_TIM_Base_Start_IT(&htim6);															// запуск диагностики
 	}
 	
 	
@@ -1462,7 +1472,7 @@ void GetVoltage(void)
 		//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
 		
 		if(!((n==3)||(n==1))){
-			HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_SET);
 		HAL_ADC_Start(&hadc1);			// запуск ацп
 		HAL_ADC_Start(&hadc2);
 		HAL_ADC_Start(&hadc3);
@@ -1579,7 +1589,7 @@ void GetVoltage(void)
 					STATUS.ant_fuse[3] = 0;
 				}
 				
-							
+#endif							
 				
 				
 				break;
@@ -1808,7 +1818,7 @@ void GetVoltage(void)
 				break;
 		}
 		
-		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(GPIOC,GPIO_PIN_15,GPIO_PIN_RESET);
 	}
 	
 	
@@ -2325,7 +2335,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       break;
     case U2CT_OVERLAP:																						// перекрытие
       SETUP.overlap = UART2RecvData.value.i;
-			Overlap_u 		= -fabs(SETUP.overlap);												// временное с обрптным перекрытием
+			Overlap_u 		= -fabsf(SETUP.overlap);												// временное с обрптным перекрытием
       break;
     case U2CT_TIME_LIMIT:																					// ограниечение длительности
       SETUP.duration_limit = UART2RecvData.value.i;
@@ -2714,7 +2724,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		switch(GPIO_Pin)
 		{
 #ifdef BUTT
-			case GPIO_PIN_10:							// кнопка запуск
+			case START_Pin:							// кнопка запуск
 				if((def == 0)&&(STATUS.trans_state == 0)&&(sec > 0)){
 					if(Mode == MAIN){
 
@@ -2737,7 +2747,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					else if(Mode == GEN)
 						Generator();}
 				break;
-			case GPIO_PIN_11:							// останов/ сброс
+			case STOP_Pin:							// останов/ сброс
 #ifdef DEBUG
 				SETUP.alarm_msg = 0;
 				StopAlarm();
@@ -2753,7 +2763,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				}
 				break;
 #endif
-			case GPIO_PIN_12:							// защита
+			case DEF_INT_Pin:							// защита
 				defcnt++;
 				if (defcnt >= SETUP.count_halt_limit)
 				{
@@ -2781,9 +2791,35 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				CommandReply(U2CT_OVERLOAD_CNT, 'i', STATUS.overload_cnt);
 				}
 			break;
+			case Sync_IN_Pin:			// обработка импульса синхронизации
+			if(!SETUP.standby && SETUP.enable)
+			{
+				TimeOut_en = 0;
+				HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);			// отключение прерываний по входу синхронизации
+				HAL_TIM_Base_Start_IT(&htim6);							// запуск таймера 6 
+			}
+			break;
 		}
-
 		
+	}
+	
+	void HAL_SYSTICK_Callback(void)
+	{
+		if(TimeOut_en)
+		{
+			switch(TimeOut_cnt){
+				case 1000:								
+					HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);																// отключение прерываний
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// включение синхроимпульса
+					HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
+				break;
+				case 1100:
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// выключение синхроимпульса
+					TimeOut_en = 0;
+				break;
+			}
+			TimeOut_cnt++;
+		}
 	}
 	
 	void	HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)

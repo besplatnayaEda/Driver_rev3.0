@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -71,7 +71,7 @@ void HAL_CRC_MspInit(CRC_HandleTypeDef* crcHandle)
   /* USER CODE BEGIN CRC_MspInit 0 */
 
   /* USER CODE END CRC_MspInit 0 */
-    /* Peripheral clock enable */
+    /* CRC clock enable */
     __HAL_RCC_CRC_CLK_ENABLE();
   /* USER CODE BEGIN CRC_MspInit 1 */
 

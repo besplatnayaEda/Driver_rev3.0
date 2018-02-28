@@ -56,7 +56,7 @@
 #define Vsupp 3.3f
 #define Effbit 4096
 
-#define FIRMWARE	0x0913U		// ver 1.2.18-3
+#define FIRMWARE	0xE113U		// ver 28.2.18-3
 #define HARDWARE	0x0000U
 
 // количесиво витков в обмотках
