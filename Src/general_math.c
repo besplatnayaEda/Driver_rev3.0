@@ -2814,7 +2814,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
 				break;
 				case 1100:
-					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// выключение синхроимпульса
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
 					TimeOut_en = 0;
 				break;
 			}
