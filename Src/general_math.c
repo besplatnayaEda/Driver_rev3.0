@@ -1653,7 +1653,7 @@ void GetVoltage(void)
 				U4fall2 -= mean4;
 				
 
-//				if(STATUS.trans_state == 2){
+				if(STATUS.trans_state == 2){
 				L1 = CalculateL(U1rise1,U1fall2,Us1);
 				L2 = CalculateL(U2rise1,U2fall2,Us2);
 				L3 = CalculateL(U3rise1,U3fall2,Us3);
@@ -1684,7 +1684,7 @@ void GetVoltage(void)
 				R2a += R2;
 				R3a += R3;
 				R4a += R4;
-//				}
+				}
 				P1 = CalculateP(I1, R1);
 				P2 = CalculateP(I2, R2);
 				P3 = CalculateP(I3, R3);
@@ -1758,7 +1758,7 @@ void GetVoltage(void)
 			
 				
 
-//				if(STATUS.trans_state == 2){
+				if(STATUS.trans_state == 2){
 
 				L1 = CalculateL(U1rise1,U1fall2,Us1);
 				L2 = CalculateL(U2rise1,U2fall2,Us2);
@@ -1790,7 +1790,7 @@ void GetVoltage(void)
 				R2a += R2;
 				R3a += R3;
 				R4a += R4;
-//				}
+				}
 				P1 = CalculateP(I1, R1);
 				P2 = CalculateP(I2, R2);
 				P3 = CalculateP(I3, R3);
@@ -1831,7 +1831,7 @@ void GetVoltage(void)
 			
 
 
-		Ltmp = fabsf(fabsf(Ur)-fabsf(Uf))/(2.0f*L0*Usupp);
+		Ltmp = 3.0f*(2.0f*L0*Usupp)/fabsf(fabsf(Ur)-fabsf(Uf));
 		
 		return Ltmp;																
 	
@@ -1877,8 +1877,8 @@ void GetVoltage(void)
 		
 		Ptmp = 0.5f*powf(fabs(I),2)*R;
 		
-		if(fabs(Ptmp) > 9000)
-			Ptmp = 9001;
+		if(fabs(Ptmp) > 18000)
+			Ptmp = 18001;
 		
 		if(fabs(Ptmp) < 1e-6f)
 			Ptmp = 0;
@@ -2055,15 +2055,50 @@ void GetVoltage(void)
 		
 	}
 	
-	mean1 /= MEAN_CNT;
-	mean2 /= MEAN_CNT;
-	mean3 /= MEAN_CNT;
-	mean4 /= MEAN_CNT;
+		mean1 /= MEAN_CNT;
+		mean2 /= MEAN_CNT;
+		mean3 /= MEAN_CNT;
+		mean4 /= MEAN_CNT;
 	
-	mean1 *= Vsupp/Effbit;
-	mean2 *= Vsupp/Effbit;
-	mean3 *= Vsupp/Effbit;
-	mean4 *= Vsupp/Effbit;
+		mean1 *= Vsupp/Effbit;
+		mean2 *= Vsupp/Effbit;
+		mean3 *= Vsupp/Effbit;
+		mean4 *= Vsupp/Effbit;
+	
+		I1a = 0;
+		I2a = 0;
+		I3a = 0;
+		I4a = 0;
+		
+		L1a = 0;
+		L2a = 0;
+		L3a = 0;
+		L4a = 0;
+		
+		C1cra = 0;
+		C2cra = 0;
+		C3cra = 0;
+		C4cra = 0;
+		
+		R1a = 0;
+		R2a = 0;
+		R3a = 0;
+		R4a = 0;
+		
+		P1a = 0;
+		P2a = 0;
+		P3a = 0;
+		P4a = 0;
+		
+		I1m = 0;
+		I2m = 0;
+		I3m = 0;
+		I4m = 0;
+		
+		P1m = 0;
+		P2m = 0;
+		P3m = 0;
+		P4m = 0;		
 	}
 
 	// перерывание передачи
@@ -2220,7 +2255,6 @@ void GetVoltage(void)
 		R1a = 0;
 		R2a = 0;
 		R3a = 0;
-
 		R4a = 0;
 		
 		P1a = 0;
