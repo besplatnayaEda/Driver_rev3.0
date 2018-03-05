@@ -1237,7 +1237,7 @@ void Diag(void)
 		// запуск таймаута
 		TimeOut_cnt = 0;
 		TimeOut_en = 1;
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*4);						// установка длительности диагностики
+		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
 	
 		TIM6 -> CNT = 0;
 		
@@ -1319,13 +1319,13 @@ void Diag(void)
 			//StopDiag = 1;
 		}
 		else{
-		psk = SystemCoreClock/((TIM1->PSC+1)*4*freq);								// расчет периода таймера
-		TimeLimit_u = TimeLimit_u;
+		psk = SystemCoreClock/((TIM1->PSC+1)*2*freq);								// расчет периода таймера
+		TimeLimit_u = 2*TimeLimit_u;
 		TimingCalc();																								// расчет длитльностей импульсов
 		SetTiming();																								// установка длительностей импульсов
 		f_change = 0;
 		}																							
-		psk = SystemCoreClock/((TIM1->PSC+1)*4*freq);								// расчет периода таймера
+		psk = SystemCoreClock/((TIM1->PSC+1)*40*freq);								// расчет периода таймера
 		diag = 1;
 		
 		switch(State)																								// остановка или запуск шим
@@ -1591,6 +1591,17 @@ void GetVoltage(void)
 				
 #endif							
 				
+				L1 = CalculateL(U1rise1,0,Us1);
+				L2 = CalculateL(U2rise1,0,Us2);
+				L3 = CalculateL(U3rise1,0,Us3);
+				L4 = CalculateL(U4rise1,0,Us4);
+				
+								
+				C1corr = CalculateC(L1);
+				C2corr = CalculateC(L2);
+				C3corr = CalculateC(L3);
+				C4corr = CalculateC(L4);
+			
 				
 				break;
 			case 10:																						// первый импульс
@@ -1654,26 +1665,7 @@ void GetVoltage(void)
 				
 
 				if(STATUS.trans_state == 2){
-				L1 = CalculateL(U1rise1,U1fall2,Us1);
-				L2 = CalculateL(U2rise1,U2fall2,Us2);
-				L3 = CalculateL(U3rise1,U3fall2,Us3);
-				L4 = CalculateL(U4rise1,U4fall2,Us4);
 				
-				L1a += L1;
-				L2a += L2;
-				L3a += L3;
-				L4a += L4;
-				
-				C1corr = CalculateC(L1);
-				C2corr = CalculateC(L2);
-				C3corr = CalculateC(L3);
-				C4corr = CalculateC(L4);
-
-				C1cra += C1corr;
-				C2cra += C2corr;
-				C3cra += C3corr;
-				C4cra += C4corr;
-
 				R1 = CalculateR(U1rise2,U1fall2, C1, L1);
 				R2 = CalculateR(U2rise2,U2fall2, C2, L2);
 				R3 = CalculateR(U3rise2,U3fall2, C3, L3);
@@ -1760,26 +1752,7 @@ void GetVoltage(void)
 
 				if(STATUS.trans_state == 2){
 
-				L1 = CalculateL(U1rise2,U1fall1,Us1);
-				L2 = CalculateL(U2rise2,U2fall1,Us2);
-				L3 = CalculateL(U3rise2,U3fall1,Us3);
-				L4 = CalculateL(U4rise2,U4fall1,Us4);
-				
-				L1a += L1;
-				L2a += L2;
-				L3a += L3;
-				L4a += L4;
-				
-				C1corr = CalculateC(L1);
-				C2corr = CalculateC(L2);
-				C3corr = CalculateC(L3);
-				C4corr = CalculateC(L4);
-
-				C1cra += C1corr;
-				C2cra += C2corr;
-				C3cra += C3corr;
-				C4cra += C4corr;
-				
+							
 				R1 = CalculateR(U1rise1,U1fall1, C1, L1);
 				R2 = CalculateR(U2rise1,U2fall1, C2, L2);
 				R3 = CalculateR(U3rise1,U3fall1, C3, L3);
@@ -1830,8 +1803,8 @@ void GetVoltage(void)
 		float Ltmp = 0;
 			
 
-//		Ltmp = Usupp*L0/fabs(Ur);
-		Ltmp = (2.0f*L0*Usupp)/fabsf(Ur-Uf);
+		Ltmp = Usupp*L0/fabs(Ur);
+//		Ltmp = (2.0f*L0*Usupp)/fabsf(Ur-Uf);
 		
 		return Ltmp;																
 	
@@ -2144,9 +2117,9 @@ void GetVoltage(void)
 			STATUS.im[0] = I1m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[0]  = 0.5f*L1a*1000/DiagCNT;						//1000 в м√н
+				STATUS.l[0]  = L1*1000;						//1000 в м√н
 			if(STATUS.trans_state == 2)
-				STATUS.ra[0] = 0.5f*R1a/DiagCNT;
+				STATUS.ra[0] = R1a;
 			
 			STATUS.pa[0] = 0.5f*P1a/(DiagCNT*1000);				// в к¬т
 			STATUS.pm[0] = P1m/1000;								// в к¬т
@@ -2170,9 +2143,9 @@ void GetVoltage(void)
 			STATUS.im[1] = I2m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[1]  = 0.5f*L2a*1000/DiagCNT;
+				STATUS.l[1]  = L2*1000;
 			if(STATUS.trans_state == 2)
-				STATUS.ra[1] = 0.5f*R2a/DiagCNT;
+				STATUS.ra[1] = R2a;
 			
 			STATUS.pa[1] = 0.5f*P2a/(DiagCNT*1000);
 			STATUS.pm[1] = P2m/1000;
@@ -2196,9 +2169,9 @@ void GetVoltage(void)
 			STATUS.im[2] = I3m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[2]  = 0.5f*L3a*1000/DiagCNT;
+				STATUS.l[2]  = L3*1000;
 			if(STATUS.trans_state == 2)
-				STATUS.ra[2] = 0.5f*R3a/DiagCNT;
+				STATUS.ra[2] = R3a;
 			
 			STATUS.pa[2] = 0.5f*P3a/(DiagCNT*1000);
 			STATUS.pm[2] = P3m/1000;
@@ -2222,9 +2195,9 @@ void GetVoltage(void)
 			STATUS.im[3] = I4m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[3]  = 0.5f*L4a*1000/DiagCNT;
+				STATUS.l[3]  = L4*1000;
 			if(STATUS.trans_state == 2)
-				STATUS.ra[3] = 0.5f*R4a/DiagCNT;
+				STATUS.ra[3] = R4a;
 			
 			STATUS.pa[3] = 0.5f*P4a/(DiagCNT*1000);
 			STATUS.pm[3] = P4m/1000;
@@ -2248,23 +2221,7 @@ void GetVoltage(void)
 		I2a = 0;
 		I3a = 0;
 		I4a = 0;
-		
-
-		L1a = 0;
-		L2a = 0;
-		L3a = 0;
-		L4a = 0;
-		
-		C1cra = 0;
-		C2cra = 0;
-		C3cra = 0;
-		C4cra = 0;
-		
-		R1a = 0;
-		R2a = 0;
-		R3a = 0;
-		R4a = 0;
-		
+				
 		P1a = 0;
 		P2a = 0;
 		P3a = 0;

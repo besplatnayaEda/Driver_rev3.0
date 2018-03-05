@@ -379,15 +379,15 @@ void TIM1_CC_IRQHandler(void)
 //					HAL_TIM_Base_Stop_IT(&htim7);
 					CorrectTIM();
 				}
-//			if(f_change == 0)
-//				{
-//					TimeLimit_u = TimeLimit_u/2;
-//					TimingCalc();																								// расчет длитльностей импульсов
-//					SetTiming();
-//					f_change = 1;
-//				}
-//			else
-//				TIM1 -> BDTR &= TIM_BREAK_ENABLE;
+			if(f_change == 0)
+				{
+					TimeLimit_u = TimeLimit_u/2;
+					TimingCalc();																								// расчет длитльностей импульсов
+					SetTiming();
+					f_change = 1;
+				}
+			else
+				TIM1 -> BDTR &= TIM_BREAK_ENABLE;
 		break;
 		case SENDDATA: //if(TransMode == SENDDATA)
 			if(TimeLimit == TimeLimit_u*Tick)
