@@ -2142,8 +2142,12 @@ void GetVoltage(void)
 		{
 			STATUS.ia[0] = 0.5f*I1a/DiagCNT;
 			STATUS.im[0] = I1m;
-			STATUS.l[0]  = 1.5f*L1a*1000/DiagCNT;						//1000 ‚ Ï√Ì
-			STATUS.ra[0] = 0.5f*R1a/DiagCNT;
+			
+			if(STATUS.trans_state == 2)
+				STATUS.l[0]  = 0.5f*L1a*1000/DiagCNT;						//1000 ‚ Ï√Ì
+			if(STATUS.trans_state == 2)
+				STATUS.ra[0] = 0.5f*R1a/DiagCNT;
+			
 			STATUS.pa[0] = 0.5f*P1a/(DiagCNT*1000);				// ‚ Í¬Ú
 			STATUS.pm[0] = P1m/1000;								// ‚ Í¬Ú
 
@@ -2164,8 +2168,12 @@ void GetVoltage(void)
 		{
 			STATUS.ia[1] = 0.5f*I2a/DiagCNT;
 			STATUS.im[1] = I2m;
-			STATUS.l[1]  = 1.5f*L2a*1000/DiagCNT;
-			STATUS.ra[1] = 0.5f*R2a/DiagCNT;
+			
+			if(STATUS.trans_state == 2)
+				STATUS.l[1]  = 0.5f*L2a*1000/DiagCNT;
+			if(STATUS.trans_state == 2)
+				STATUS.ra[1] = 0.5f*R2a/DiagCNT;
+			
 			STATUS.pa[1] = 0.5f*P2a/(DiagCNT*1000);
 			STATUS.pm[1] = P2m/1000;
 
@@ -2186,8 +2194,12 @@ void GetVoltage(void)
 		{
 			STATUS.ia[2] = 0.5f*I3a/DiagCNT;
 			STATUS.im[2] = I3m;
-			STATUS.l[2]  = 1.5f*L3a*1000/DiagCNT;
-			STATUS.ra[2] = 0.5f*R3a/DiagCNT;
+			
+			if(STATUS.trans_state == 2)
+				STATUS.l[2]  = 0.5f*L3a*1000/DiagCNT;
+			if(STATUS.trans_state == 2)
+				STATUS.ra[2] = 0.5f*R3a/DiagCNT;
+			
 			STATUS.pa[2] = 0.5f*P3a/(DiagCNT*1000);
 			STATUS.pm[2] = P3m/1000;
 
@@ -2208,8 +2220,12 @@ void GetVoltage(void)
 		{
 			STATUS.ia[3] = 0.5f*I4a/DiagCNT;
 			STATUS.im[3] = I4m;
-			STATUS.l[3]  = 1.5f*L4a*1000/DiagCNT;
-			STATUS.ra[3] = 0.5f*R4a/DiagCNT;
+			
+			if(STATUS.trans_state == 2)
+				STATUS.l[3]  = 0.5f*L4a*1000/DiagCNT;
+			if(STATUS.trans_state == 2)
+				STATUS.ra[3] = 0.5f*R4a/DiagCNT;
+			
 			STATUS.pa[3] = 0.5f*P4a/(DiagCNT*1000);
 			STATUS.pm[3] = P4m/1000;
 
