@@ -2124,7 +2124,7 @@ void GetVoltage(void)
 			STATUS.pa[0] = 0.5f*P1a/(DiagCNT*1000);				// ‚ Í¬Ú
 			STATUS.pm[0] = P1m/1000;								// ‚ Í¬Ú
 
-			STATUS.c[0]  = 0.5f*C1cra/DiagCNT;							// ‚ ÏÍ‘
+			STATUS.c[0]  = C1corr;							// ‚ ÏÍ‘
 		}
 		else
 		{
@@ -2150,7 +2150,7 @@ void GetVoltage(void)
 			STATUS.pa[1] = 0.5f*P2a/(DiagCNT*1000);
 			STATUS.pm[1] = P2m/1000;
 
-			STATUS.c[1]  = 0.5f*C2cra/DiagCNT;
+			STATUS.c[1]  = C2corr;
 		}
 		else
 		{
@@ -2176,7 +2176,7 @@ void GetVoltage(void)
 			STATUS.pa[2] = 0.5f*P3a/(DiagCNT*1000);
 			STATUS.pm[2] = P3m/1000;
 
-			STATUS.c[2]  = 0.5f*C3cra/DiagCNT;
+			STATUS.c[2]  = C3corr;
 		}
 		else
 		{
@@ -2202,7 +2202,7 @@ void GetVoltage(void)
 			STATUS.pa[3] = 0.5f*P4a/(DiagCNT*1000);
 			STATUS.pm[3] = P4m/1000;
 
-			STATUS.c[3]  = 0.5f*C4cra/DiagCNT;
+			STATUS.c[3]  = C4corr;
 		}
 		else
 		{
