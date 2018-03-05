@@ -349,7 +349,10 @@ void TIM1_UP_TIM16_IRQHandler(void)
 		}
 	}
 	if(sec > 1)
+	{
 		StopDiag = 1;
+		CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
+	}
 #ifndef GEN_MODE
 	if(min == DiagTime)
 		Diag();

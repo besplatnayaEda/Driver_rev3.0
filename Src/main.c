@@ -290,7 +290,7 @@ int main(void)
 	SETUP.softsrart = ON;
 	
 	STATUS.driver_fw = FIRMWARE;
-	STATUS.driver_hw = (uint16_t)CRCUniqueID;
+	STATUS.driver_hw = HARDWARE;
 	STATUS.trans_ok = 1;
 	STATUS.drvenable = 1;
 	CommandReply(U2CT_DRIVER_FW, 'i', STATUS.driver_fw);
