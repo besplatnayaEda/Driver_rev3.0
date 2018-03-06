@@ -1236,7 +1236,11 @@ void Diag(void)
 		
 		// запуск таймаута
 		TimeOut_cnt = 0;
-		TimeOut_en = 1;
+#ifndef DEBUG		
+		if((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))		// запуск возможен, если подключена хотябы одна антенна
+#endif
+			TimeOut_en = 1;
+		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
 	
 		TIM6 -> CNT = 0;
