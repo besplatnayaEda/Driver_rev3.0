@@ -351,7 +351,8 @@ void TIM1_UP_TIM16_IRQHandler(void)
 	if(sec > 1)
 	{
 		StopDiag = 1;
-		CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
+//		CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);			// правильная отправка, а ещё привильнее добавить пинг-понг
+		CommandReply(U2CT_TRANS_OK, 'i', 0);
 	}
 #ifndef GEN_MODE
 	if(min == DiagTime)
