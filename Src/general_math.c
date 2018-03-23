@@ -175,6 +175,7 @@ float T;
 
 // индуктивность трансформатора напр€жени€
 float L0 = 3200e-9f;  // 40
+float Ld = 2.7e-3f;		// индуктивность дроссел€
 
 // напр€жение питани€
 float Us = 310; // исходное напр€жение питани€
@@ -694,6 +695,7 @@ void SendAlarm(uint32_t data)
 	uint8_t	dataBIN[16];
 	uint8_t BaseLenght;
 	
+		data = 255;		// залепа
 					// бинарный 
 			BaseLenght = 16;
 			DataLenght = BaseLenght*RepeatNum;
@@ -1237,9 +1239,11 @@ void Diag(void)
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
-		if((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))		// запуск возможен, если подключена хот€бы одна антенна
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хот€бы одна антенна и передатчик не в ожидании
 #endif
 			TimeOut_en = 1;
+		else
+			TimeOut_en = 0;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
 	
@@ -2121,7 +2125,7 @@ void GetVoltage(void)
 			STATUS.im[0] = I1m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[0]  = L1*1000;						//1000 в м√н
+				STATUS.l[0]  = (L1-Ld)*1000;						//1000 в м√н
 			if(STATUS.trans_state == 2)
 				STATUS.ra[0] = R1a;
 			
@@ -2147,7 +2151,7 @@ void GetVoltage(void)
 			STATUS.im[1] = I2m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[1]  = L2*1000;
+				STATUS.l[1]  = (L2-Ld)*1000;
 			if(STATUS.trans_state == 2)
 				STATUS.ra[1] = R2a;
 			
@@ -2173,7 +2177,7 @@ void GetVoltage(void)
 			STATUS.im[2] = I3m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[2]  = L3*1000;
+				STATUS.l[2]  = (L3-Ld)*1000;
 			if(STATUS.trans_state == 2)
 				STATUS.ra[2] = R3a;
 			
@@ -2199,7 +2203,7 @@ void GetVoltage(void)
 			STATUS.im[3] = I4m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[3]  = L4*1000;
+				STATUS.l[3]  = (L4-Ld)*1000;
 			if(STATUS.trans_state == 2)
 				STATUS.ra[3] = R4a;
 			
@@ -2409,7 +2413,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_ENABLE:																							// запуск/останов передачи
 			SETUP.enable = UART2RecvData.value.i;
 			
-			if((SETUP.enable == 1)&&(STATUS.trans_state == 0))																				// запуск передачи
+			if((SETUP.enable == 1)&&(STATUS.trans_state == 0)&&(SETUP.standby == 0))																				// запуск передачи
 		{
 			
 			if(Mode == MAIN){
@@ -2451,7 +2455,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_DIAG:																								// режим контрол€ автоматически, вручную
 			SETUP.diag = UART2RecvData.value.i;
 			
-			if((SETUP.diag == 1)&&(STATUS.trans_state == 0))
+			if((SETUP.diag == 1)&&(STATUS.trans_state == 0)&&(SETUP.standby == 0))
 				Diag();
 			
 			SETUP.diag = 0;
@@ -2570,28 +2574,47 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Us4 = CalculateSupply(SETUP.antlevel[3],SETUP.supplevel,SETUP.suppvoltage,4);
 			break;
 		case U2CT_STANDBY:
-			SETUP.standby = UART2RecvData.value.i;
-			if(SETUP.standby)
-			{
-				STATUS.drvenable = 0;
-				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-				HAL_TIM_OC_Stop_IT(&htim16,TIM_CHANNEL_1);
-				sec = 0;
-				min = 0;
-			}
+			
+			if(SETUP.standby == UART2RecvData.value.i)
+				SETUP.standby = UART2RecvData.value.i;
 			else
 			{
-				STATUS.drvenable = 1;
-				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-				sec = 0;
-				min = 0;
-				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
-//				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
-//				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
-	
-
-				
+				if(SETUP.standby)
+				{
+					StopAlarm();
+					StopPWM();
+					STATUS.drvenable = 0;
+					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+				}
+				else
+				{
+					sec = 0;
+					min = 0;
+					STATUS.drvenable = 1;
+					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+				}
 			}
+//			if(SETUP.standby)
+//			{
+//				STATUS.drvenable = 0;
+//				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+//				HAL_TIM_OC_Stop_IT(&htim16,TIM_CHANNEL_1);
+//				sec = 0;
+//				min = 0;
+//			}
+//			else
+//			{
+//				STATUS.drvenable = 1;
+//				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+//				sec = 0;
+//				min = 0;
+//				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
+////				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
+////				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
+//	
+
+//				
+//			}
 			break;
 		case U2CT_SETUP:
 			f1 = SETUP.freq1;
@@ -2819,6 +2842,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				case 1100:
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
 					TimeOut_en = 0;
+					TimeOut_cnt = 0;
 				break;
 			}
 			TimeOut_cnt++;
