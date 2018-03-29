@@ -198,6 +198,8 @@ uint8_t	 PauseDelay = 80;
 uint8_t		TimeOut_en;
 uint16_t	TimeOut_cnt;
 
+uint8_t		Uart_RX_TimeOut_cnt = 0;
+
 
 // параметры для контроля в режиме работы 
 float		 UIrise[4];
@@ -2672,10 +2674,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_DRIVER_HW:
 			CommandReply(U2CT_DRIVER_HW, 'i', STATUS.driver_hw);
 			break;
-    default: break;
+    default:
+			
+			break;
   }  // switch
 
-													
+		Uart_RX_TimeOut_cnt = 0;											
 		UART2_RecvType = UART2_RECV_CMD;
 		HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
 			
@@ -2867,6 +2871,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				break;
 			}
 			TimeOut_cnt++;
+		}
+		
+		if((huart1.RxXferSize > 1) && (huart1.RxXferCount <= huart1.RxXferSize))
+		{
+			if(Uart_RX_TimeOut_cnt == 100)
+			{				
+				Uart_RX_TimeOut_cnt = 0;
+				UART2_RecvType = UART2_RECV_CMD;
+				HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
+			}
+			Uart_RX_TimeOut_cnt++;
+		}
+		
+		if((huart1.RxState == HAL_UART_STATE_READY) )
+		{
+			if(Uart_RX_TimeOut_cnt == 100)
+			{				
+				Uart_RX_TimeOut_cnt = 0;
+				UART2_RecvType = UART2_RECV_CMD;
+				HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
+			}
+			Uart_RX_TimeOut_cnt++;
 		}
 	}
 	
