@@ -175,7 +175,7 @@ float T;
 
 // индуктивность трансформатора напряжения
 float L0 = 3200e-9f;  // 40
-float Ld = 1.0e-3f;		// индуктивность дросселя
+float Ld = 0.0e-3f;		// индуктивность дросселя
 
 // напряжение питания
 float Us = 310; // исходное напряжение питания
@@ -1803,7 +1803,7 @@ void GetVoltage(void)
 	}
 	
 	
-			// расчет индуктивности
+	// расчет индуктивности
 
 	float CalculateL(float Ur, float Uf, float Usupp)
 	{
@@ -2004,7 +2004,7 @@ void GetVoltage(void)
 			}
 		}
 	
-// калибровка средней точки ацп
+ // калибровка средней точки ацп
 	void CalibrateMean(void)
 	{
 		mean1 = 0;
@@ -2646,6 +2646,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			UI_fuse[1] = CalculateTransVoltage(SETUP.i_fuse[1],1);
 			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2],1);
 			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3],1);
+			
+//			if(SETUP.standby)
+//				{
+////					StopAlarm();
+////					StopPWM();
+//					STATUS.drvenable = 0;
+////					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+//				}
+//				else
+//				{
+////					sec = 0;
+////					min = 0;
+//					STATUS.drvenable = 1;
+////					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
+//				}
 			//SaveSetting();
 			break;
 		case U2CT_DRIVER_FW:
@@ -2791,6 +2806,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 #endif
 			case DEF_INT_Pin:							// защита
 				defcnt++;
+				if(SETUP.overloadmode == 0)
+					defcnt = SETUP.count_halt_limit;
+				
 				if (defcnt >= SETUP.count_halt_limit)
 				{
 					def = 1;

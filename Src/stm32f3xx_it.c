@@ -321,7 +321,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 	else
 		alarm_pause_cnt = 0;
 	
-	if(sec == 60)
+	if(sec == 59)
 	{
 		min++;
 		sec = 0;
@@ -353,12 +353,17 @@ void TIM1_UP_TIM16_IRQHandler(void)
 		StopDiag = 1;
 
 	}
+	
+	if(sec!=0)
 		CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);			// правильная отправка, а ещё привильнее добавить пинг-понг
 //		CommandReply(U2CT_TRANS_OK, 'i', 1);
 	
 #ifndef GEN_MODE
-	if(min == DiagTime)
+	if(min >= DiagTime)				// запуск диагностики каждый период
+	{
+		min = 0;
 		Diag();
+	}
 #endif
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
