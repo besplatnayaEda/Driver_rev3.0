@@ -1242,8 +1242,11 @@ void Diag(void)
 		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
 #endif
 			TimeOut_en = 1;
+#ifndef DEBUG			
 		else
 			TimeOut_en = 0;
+#endif
+		TIM6 -> EGR  |= TIM_EGR_UG;;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
 	
