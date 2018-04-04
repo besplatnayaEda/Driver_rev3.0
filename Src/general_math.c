@@ -2584,11 +2584,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				SETUP.standby = UART2RecvData.value.i;
 			else
 			{
-				if(SETUP.standby)
+				if(UART2RecvData.value.i)
 				{
 					StopAlarm();
 					StopPWM();
 					STATUS.drvenable = 0;
+					SETUP.standby = UART2RecvData.value.i;
 					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 				}
 				else
@@ -2596,6 +2597,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					sec = 0;
 					min = 0;
 					STATUS.drvenable = 1;
+					SETUP.standby = UART2RecvData.value.i;
 					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 				}
 			}
