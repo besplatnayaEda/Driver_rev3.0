@@ -2865,11 +2865,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				case 1000:								
 					HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);																// отключение прерываний
 					
-					GPIO_InitStruct.Pin = Sync_OUT_Pin;																// перевод выхода в пуш-пул
-					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-					GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+					//GPIO_InitStruct.Pin = Sync_OUT_Pin;																// перевод выхода в пуш-пул
+					//GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+					//GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+					//GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					//HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+					//__NOP();
 				
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// включение синхроимпульса
 					HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
@@ -2877,12 +2878,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				case 1100:
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
 				
-					GPIO_InitStruct.Pin = Sync_OUT_Pin;																	// перевод выхода в третье состояние
-					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-					GPIO_InitStruct.Pull = GPIO_NOPULL;
-					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
-					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);
+					//GPIO_InitStruct.Pin = Sync_OUT_Pin;																	// перевод выхода в третье состояние
+					//GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+					//GPIO_InitStruct.Pull = GPIO_NOPULL;
+					//GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					//HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+					//HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);
 				
 					TimeOut_en = 0;
 					TimeOut_cnt = 0;
