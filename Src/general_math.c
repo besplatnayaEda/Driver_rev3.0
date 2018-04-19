@@ -2860,14 +2860,30 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		if(TimeOut_en)
 		{
+			GPIO_InitTypeDef GPIO_InitStruct;
 			switch(TimeOut_cnt){
 				case 1000:								
 					HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);																// отключение прерываний
+					
+					GPIO_InitStruct.Pin = Sync_OUT_Pin;																// перевод выхода в пуш-пул
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+					GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+				
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// включение синхроимпульса
 					HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
 				break;
 				case 1100:
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
+				
+					GPIO_InitStruct.Pin = Sync_OUT_Pin;																	// перевод выхода в третье состояние
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);
+				
 					TimeOut_en = 0;
 					TimeOut_cnt = 0;
 				break;
@@ -2875,7 +2891,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			TimeOut_cnt++;
 		}
 		
-		if((huart1.RxXferSize > 1) && (huart1.RxXferCount <= huart1.RxXferSize))
+		if((huart1.RxXferSize > 1) && (huart1.RxXferCount <= huart1.RxXferSize))									// таймаут для уарта, если рассинхрон во время обмена
 		{
 			if(Uart_RX_TimeOut_cnt == 100)
 			{				
@@ -2886,7 +2902,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Uart_RX_TimeOut_cnt++;
 		}
 		
-		if((huart1.RxState == HAL_UART_STATE_READY) )
+		if((huart1.RxState == HAL_UART_STATE_READY) )																						// таймаут, если завис 
 		{
 			if(Uart_RX_TimeOut_cnt == 100)
 			{				
