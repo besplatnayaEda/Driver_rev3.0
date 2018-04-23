@@ -70,7 +70,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_DEF_Pin|GPIO_TRANS_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOC, Sync_OUT_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOC, Sync_OUT_Pin, GPIO_PIN_SET);
 	
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, RS485_DE_Pin|RS485_RE_Pin, GPIO_PIN_RESET);
@@ -84,7 +84,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Sync_OUT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
