@@ -1299,7 +1299,7 @@ void Diag(void)
 		
 		// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -2840,6 +2840,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			if(!SETUP.standby)
 			{
 				TimeOut_en = 0;
+				TimeOut_cnt = 0;
 				HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);			// отключение прерываний по входу синхронизации
 				if(def == 0)
 					HAL_TIM_Base_Start_IT(&htim6);							// запуск таймера 6 

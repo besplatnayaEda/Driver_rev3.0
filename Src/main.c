@@ -204,7 +204,7 @@ int main(void)
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 	
-	
+	HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);
 	HAL_TIM_OC_Init(&htim15);
 	HAL_TIM_OC_Start(&htim15,TIM_CHANNEL_1);
 	HAL_TIM_OC_Init(&htim16);
