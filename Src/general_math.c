@@ -531,7 +531,7 @@ void SendData(uint32_t data)
 		
 				// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -578,7 +578,7 @@ void SendData(uint32_t data)
 		
 				// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -623,7 +623,7 @@ void SendData(uint32_t data)
 		
 				// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -685,7 +685,7 @@ void SendAlarm(uint32_t data)
 		
 				// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -815,7 +815,7 @@ void SendAlarm(uint32_t data)
 
 				// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
@@ -1299,7 +1299,7 @@ void Diag(void)
 		
 		// настройка условйи для синхрозапуска
 		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
-		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);
+		__HAL_GPIO_EXTI_CLEAR_IT(Sync_IN_Pin);				// сброс флагов ожидания прерывания
 		// запуск таймаута
 		TimeOut_cnt = 0;
 #ifndef DEBUG		
