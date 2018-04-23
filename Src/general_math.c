@@ -530,7 +530,7 @@ void SendData(uint32_t data)
 		//STATUS.trans_state = 1;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
-		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 		if(def == 0)
 			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
@@ -544,9 +544,7 @@ void SendData(uint32_t data)
 		
 		//Diag();
 		#ifndef DEBUG
-		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
-			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
-			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+			if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
 		#endif		
 			{
 		// установка стартовых параметров
@@ -565,7 +563,7 @@ void SendData(uint32_t data)
 		//STATUS.trans_state = 1;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
-		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 		if(def == 0)
 			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
@@ -578,9 +576,7 @@ void SendData(uint32_t data)
 		
 		//Diag();
 		#ifndef DEBUG
-		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
-			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
-			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+			if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
 		#endif		
 			{
 		// установка стартовых параметров
@@ -599,7 +595,7 @@ void SendData(uint32_t data)
 		//STATUS.trans_state = 1;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
-		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 		if(def == 0)
 			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
@@ -613,9 +609,7 @@ void SendAlarm(uint32_t data)
 		
 		//Diag();
 		#ifndef DEBUG
-		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
-			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
-			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+			if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
 		#endif
 			{
 		// установка стартовых параметров
@@ -650,6 +644,7 @@ void SendAlarm(uint32_t data)
 		
 				TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
+				TIM6 -> EGR  |= TIM_EGR_UG;
 				TIM6 -> CNT = 0;
 				if(def == 0)
 					HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
@@ -664,9 +659,7 @@ void SendAlarm(uint32_t data)
 		
 		//Diag();
 		#ifndef DEBUG
-		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
-			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
-			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+			if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
 		#endif
 			{
 		// установка стартовых параметров
@@ -765,7 +758,7 @@ void SendAlarm(uint32_t data)
 					break;}
 				}
 
-		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
 		TIM6 -> CNT = 0;
@@ -1248,7 +1241,7 @@ void Diag(void)
 		else
 			TimeOut_en = 0;
 #endif
-		TIM6 -> EGR  |= TIM_EGR_UG;;
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
 	
@@ -1602,6 +1595,14 @@ void GetVoltage(void)
 					STATUS.ant_fuse[3] = 0;
 				}
 				
+				for(uint8_t i = 0; i < 4; i++)
+				{
+					if(STATUS.ant_fuse[i])
+						SETUP.ant[i] = 0;
+					if(STATUS.ant_break[i])
+						SETUP.ant[i] = 0;
+				}
+				
 #endif							
 				
 				L1 = CalculateL(U1rise1,0,Us1);
@@ -1836,7 +1837,7 @@ void GetVoltage(void)
 	
 	}
 		
-		
+	// расчет сопротивления	
 	float CalculateR(float Ur, float Uf, float Cap, float L)
 	{
 		float Rtmp;
@@ -1856,7 +1857,7 @@ void GetVoltage(void)
 		
 	}
 		
-		
+	// расчте мощности
 	float CalculateP(float I, float R)
 	{
 		float Ptmp;
@@ -1872,6 +1873,7 @@ void GetVoltage(void)
 		return fabs(Ptmp);
 	}
 	
+	// расчет емкости
 	float CalculateC(float L)
 	{
 		float Ctmp;
@@ -1883,7 +1885,7 @@ void GetVoltage(void)
 		return Ctmp;
 	}
 	
-	
+	// расчет порогового значения тока при обрыве или кз в антенне
 	float CalculateTransVoltage(uint8_t I_forb, uint8_t Utype)
 	{
 		float f;
@@ -1959,49 +1961,7 @@ void GetVoltage(void)
 					STATUS.ant_break[i] = 0;
 				}
 			}
-			/*
-			if((ant_work-ant_nwork)>0)
-			{
-				for(uint8_t i = 0; i <4; i++)
-			{
-				if(STATUS.ant_fuse[i])
-				{
-					switch(i)
-					{
-						case 0:
-							CommandReply(U2CT_ANT_FUSE_1, 'i', STATUS.ant_fuse[i]);
-						break;
-						case 1:
-							CommandReply(U2CT_ANT_FUSE_2, 'i', STATUS.ant_fuse[i]);
-						break;
-						case 2:
-							CommandReply(U2CT_ANT_FUSE_3, 'i', STATUS.ant_fuse[i]);
-						break;
-						case 3:
-							CommandReply(U2CT_ANT_FUSE_4, 'i', STATUS.ant_fuse[i]);
-						break;
-					}
-				}
-				if(STATUS.ant_break[i])
-				{
-					switch(i)
-					{
-						case 0:
-							CommandReply(U2CT_ANT_BREAK_1, 'i', STATUS.ant_break[i]);
-						break;
-						case 1:
-							CommandReply(U2CT_ANT_BREAK_2, 'i', STATUS.ant_break[i]);
-						break;
-						case 2:
-							CommandReply(U2CT_ANT_BREAK_3, 'i', STATUS.ant_break[i]);
-						break;
-						case 3:
-							CommandReply(U2CT_ANT_BREAK_4, 'i', STATUS.ant_break[i]);
-						break;
-					}
-				}
-			}
-			}*/
+			
 #ifndef DEBUG
 			if((ant_work-ant_nwork)==0)		//остановка передачи, если все антенны кончились
 				StopPWM();
@@ -2654,20 +2614,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			UI_fuse[2] = CalculateTransVoltage(SETUP.i_fuse[2],1);
 			UI_fuse[3] = CalculateTransVoltage(SETUP.i_fuse[3],1);
 			
-//			if(SETUP.standby)
-//				{
-////					StopAlarm();
-////					StopPWM();
-//					STATUS.drvenable = 0;
-////					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-//				}
-//				else
-//				{
-////					sec = 0;
-////					min = 0;
-//					STATUS.drvenable = 1;
-////					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-//				}
+
 			//SaveSetting();
 			break;
 		case U2CT_DRIVER_FW:
@@ -2691,6 +2638,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		
 	}
 	
+	// преобразование напряжения питания в зависимости от выходной обмотки и количества витков
 	float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum)
 	{
 		float Utmp;
@@ -2767,7 +2715,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 		return Utmp;
 	}
-		// обработка нажатий на кнопки и защиту
+		// обработка нажатий на кнопки и защиту и псинхроимпульса
 	void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 
@@ -2779,14 +2727,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					if(Mode == MAIN){
 
 
-
-						//if((tmpData == 0) || (tmpData == 65535))
-						//	DiagnSendAlarm();
-						//else
 #ifdef DEBUG
 
-						//SETUP.alarm_msg = 1;
-//						DiagnSendAlarm();
+					
 						DiagnSendData();
 #else
 						DiagnSendData();
@@ -2856,6 +2799,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		
 	}
 	
+	// обработка таймаутов на системном таймере
 	void HAL_SYSTICK_Callback(void)
 	{
 		if(TimeOut_en)
@@ -2890,6 +2834,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			}
 			TimeOut_cnt++;
 		}
+		else
+			TimeOut_cnt = 0;
 		
 		if((huart1.RxXferSize > 1) && (huart1.RxXferCount <= huart1.RxXferSize))									// таймаут для уарта, если рассинхрон во время обмена
 		{
@@ -2924,6 +2870,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		
 	}
 
+	
+	// сохранение во флеш (не используется)
 	void SaveSetting(void)
 {
 	FLASH_EraseInitTypeDef Flash;
@@ -3001,6 +2949,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	
 }
 
+// чтение из флешь
 void LoadSetting(void)
 {
 	// частота 1

@@ -69,7 +69,7 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_DEF_Pin|GPIO_TRANS_Pin|Sync_OUT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_DEF_Pin|GPIO_TRANS_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(GPIOC, Sync_OUT_Pin, GPIO_PIN_SET);
 	
   /*Configure GPIO pin Output Level */
