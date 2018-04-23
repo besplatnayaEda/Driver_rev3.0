@@ -1312,7 +1312,7 @@ void Diag(void)
 #endif
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*1);						// установка длительности диагностики
+		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*10);						// установка длительности диагностики
 	
 		TIM6 -> CNT = 0;
 		
@@ -2841,7 +2841,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			{
 				TimeOut_en = 0;
 				HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);			// отключение прерываний по входу синхронизации
-				HAL_TIM_Base_Start_IT(&htim6);							// запуск таймера 6 
+				if(def == 0)
+					HAL_TIM_Base_Start_IT(&htim6);							// запуск таймера 6 
 			}
 			break;
 		}
@@ -2855,6 +2856,36 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		{
 			GPIO_InitTypeDef GPIO_InitStruct;
 			switch(TimeOut_cnt){
+				case 500:
+					if(TransMode != DIAG){
+					HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);																// отключение прерываний
+					
+					GPIO_InitStruct.Pin = Sync_OUT_Pin;																// перевод выхода в пуш-пул
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+					GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+				
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// включение синхроимпульса
+					if(def == 0)
+						HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
+				}//if(TransMode != DIAG )
+				break;
+				case 510:
+					if(TransMode != DIAG ){
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
+				
+					GPIO_InitStruct.Pin = Sync_OUT_Pin;																	// перевод выхода в третье состояние
+					GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+					GPIO_InitStruct.Pull = GPIO_NOPULL;
+					GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
+					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);
+				
+					TimeOut_en = 0;
+					TimeOut_cnt = 0;
+					}//if(TransMode != DIAG )
+				break;
 				case 1000:								
 					HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);																// отключение прерываний
 					
@@ -2868,7 +2899,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					if(def == 0)
 						HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
 				break;
-				case 1100:
+				case 1010:
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
 				
 					GPIO_InitStruct.Pin = Sync_OUT_Pin;																	// перевод выхода в третье состояние
