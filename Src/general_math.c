@@ -529,11 +529,25 @@ void SendData(uint32_t data)
 		Parsing(data,0);
 		//STATUS.trans_state = 1;
 		
+				// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
+		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+#ifndef DEBUG		
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
+#endif
+			TimeOut_en = 1;
+#ifndef DEBUG			
+		else
+			TimeOut_en = 0;
+#endif
+		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
-		if(def == 0)
-			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+//		if(def == 0)
+//			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
 	}
 	}
 	
@@ -562,11 +576,24 @@ void SendData(uint32_t data)
 		Parsing(0,comand);
 		//STATUS.trans_state = 1;
 		
+				// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
+		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+#ifndef DEBUG		
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
+#endif
+			TimeOut_en = 1;
+#ifndef DEBUG			
+		else
+			TimeOut_en = 0;
+#endif
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
-		if(def == 0)
-			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+//		if(def == 0)
+//			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
 	}
 	}
 	
@@ -594,11 +621,25 @@ void SendData(uint32_t data)
 		Parsing(data,comand);
 		//STATUS.trans_state = 1;
 		
+				// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
+		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+#ifndef DEBUG		
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
+#endif
+			TimeOut_en = 1;
+#ifndef DEBUG			
+		else
+			TimeOut_en = 0;
+#endif
+		
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
-		if(def == 0)
-			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+//		if(def == 0)
+//			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
 	}
 	}
 
@@ -642,12 +683,26 @@ void SendAlarm(uint32_t data)
 				
 				diag = 0;
 		
+				// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
+		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+#ifndef DEBUG		
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
+#endif
+			TimeOut_en = 1;
+#ifndef DEBUG			
+		else
+			TimeOut_en = 0;
+#endif
+		
 				TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
 				TIM6 -> EGR  |= TIM_EGR_UG;
 				TIM6 -> CNT = 0;
-				if(def == 0)
-					HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+//				if(def == 0)
+//					HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
 		
 					
 				}
@@ -758,12 +813,26 @@ void SendAlarm(uint32_t data)
 					break;}
 				}
 
+				// настройка условйи для синхрозапуска
+		HAL_NVIC_EnableIRQ(Sync_IN_EXTI_IRQn);				// включение прерываний
+		
+		// запуск таймаута
+		TimeOut_cnt = 0;
+#ifndef DEBUG		
+		if(((SETUP.ant[0] == 1) || (SETUP.ant[1] == 1) || (SETUP.ant[2] == 1) || (SETUP.ant[3] == 1))&&(SETUP.standby == 0))		// запуск возможен, если подключена хотябы одна антенна и передатчик не в ожидании
+#endif
+			TimeOut_en = 1;
+#ifndef DEBUG			
+		else
+			TimeOut_en = 0;
+#endif
+		
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
 		TIM6 -> CNT = 0;
-		if(def == 0)
-			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
+//		if(def == 0)
+//			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
 	}
 	}
 	
@@ -2561,27 +2630,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 				}
 			}
-//			if(SETUP.standby)
-//			{
-//				STATUS.drvenable = 0;
-//				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-//				HAL_TIM_OC_Stop_IT(&htim16,TIM_CHANNEL_1);
-//				sec = 0;
-//				min = 0;
-//			}
-//			else
-//			{
-//				STATUS.drvenable = 1;
-//				CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
-//				sec = 0;
-//				min = 0;
-//				HAL_TIM_OC_Start_IT(&htim16,TIM_CHANNEL_1);
-////				HAL_GPIO_WritePin(GPIOC,GPIO_DEF_Pin,GPIO_PIN_SET);
-////				HAL_GPIO_WritePin(GPIOC,GPIO_TRANS_Pin,GPIO_PIN_SET);
-//	
 
-//				
-//			}
 			break;
 		case U2CT_SETUP:
 			f1 = SETUP.freq1;
@@ -2788,7 +2837,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				}
 			break;
 			case Sync_IN_Pin:			// обработка импульса синхронизации
-			if(!SETUP.standby && SETUP.enable)
+			if(!SETUP.standby)
 			{
 				TimeOut_en = 0;
 				HAL_NVIC_DisableIRQ(Sync_IN_EXTI_IRQn);			// отключение прерываний по входу синхронизации
@@ -2816,7 +2865,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 					HAL_GPIO_Init(Sync_OUT_GPIO_Port, &GPIO_InitStruct);
 				
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_SET);	// включение синхроимпульса
-					HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
+					if(def == 0)
+						HAL_TIM_Base_Start_IT(&htim6);																		// запуск таймера 6
 				break;
 				case 1100:
 					HAL_GPIO_WritePin(Sync_OUT_GPIO_Port,Sync_OUT_Pin,GPIO_PIN_RESET);	// выключение синхроимпульса
