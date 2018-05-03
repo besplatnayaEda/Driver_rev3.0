@@ -23,6 +23,7 @@ extern uint32_t Overlap;
 extern uint32_t TimeLimit_u;
 extern uint32_t TimeLimit;
 extern uint32_t Tick;
+extern uint8_t  SoftStart;
 extern uint8_t	Trig;
 extern float 		BR;
 extern uint8_t	State;
@@ -38,18 +39,22 @@ extern uint8_t  SoftStart;
 extern uint8_t  mData[];
 extern uint8_t	Mode;
 extern uint16_t fgen;
+extern uint32_t aCNT;	
 extern DMA_HandleTypeDef hdma_usart1_tx;
+extern UART_HandleTypeDef huart1;
 
 uint8_t TransMode = 0;	// режим передатчика: 0 - передача сообщения, 1 - размагничивание, 2 - контроль, 3 - генератор
-uint8_t f_change = 0;
+uint8_t f_change = 0;		// триггер смены частоты для диагностики
 
-uint32_t ADC1buff;
+// буферы значений данных с АЦП
+uint32_t ADC1buff;			
 uint32_t ADC2buff;
 uint32_t ADC3buff;
 uint32_t ADC4buff;
 
-float U1rise1 = CONST;				
-float U1fall1 = CONST;
+// значения напряжения на трансформаторе тока
+float U1rise1 = CONST;				// после переключения
+float U1fall1 = CONST;				// перед переключением 
 
 float U2rise1 = CONST;				
 float U2fall1 = CONST;	
@@ -72,13 +77,14 @@ float U3fall2 = CONST;
 float U4rise2 = CONST;				
 float U4fall2 = CONST;
 
+// измерение средней точки
 float mean1 = 0;
 float mean2 = 0;
 float mean3 = 0;
 float mean4 = 0;
 
 
-uint8_t defcnt = 0;
+uint8_t defcnt = 0; 	// счетчик срабатывания защиты
 
 // емкость в антеннах
 float C1;
@@ -187,66 +193,68 @@ float Us3 = 48;
 float Us4 = 48;
 
 	// переменные для диагностики 
-uint32_t DiagTime = 1;
-uint32_t DiagCNT = 0;
+uint32_t DiagTime = 1;		// период диагностики
+uint32_t DiagCNT = 0;			// количество измерений диагностики
 uint32_t DiagPulse = 0;
-uint8_t	 RiseDelay = 80;
-uint8_t	 FallDelay = 80;
-uint8_t	 PauseDelay = 80;
+uint8_t	 RiseDelay = 80;	// задержка перед измерением в момент переключения
+uint8_t	 FallDelay = 80;	// задержка перед измерением в момент перед переключением
+uint8_t	 PauseDelay = 20;	// задержка перед измерением в момент после паузы
 
 	// переменные для синхронизации
-uint8_t		TimeOut_en;
-uint16_t	TimeOut_cnt;
+uint8_t		TimeOut_en;			// запуск таймера для синхронизации
+uint16_t	TimeOut_cnt;		// счетчик таймера 
 
-uint8_t		Uart_RX_TimeOut_cnt = 0;
+uint8_t		Uart_RX_TimeOut_cnt = 0;		// счетчик таймаута UART
 
 
 // параметры для контроля в режиме работы 
-float		 UIrise[4];
-float		 UI_break[4];
-float		 UI_fuse[4];
+float		 UIrise[4];			// усредненное значение напряжения контроля
+float		 UI_break[4];		// порог срабатывания защиты по обрыву
+float		 UI_fuse[4];		// порог срабатывания защиты по кз
 
-uint16_t mean_cnt = 0;
-uint16_t mean_value = 32;
-uint8_t	 ant_nwork = 0;
-uint8_t	 ant_work = 0;
+uint16_t mean_cnt = 0;		// счетчик измерений для защиты по выходу
+uint16_t mean_value = 32;	// количество измерений для защиты по выходу
+uint8_t	 ant_nwork = 0;		// количество неработающих антенн
+uint8_t	 ant_work = 0;		// количество работающих антенн
 
-extern uint8_t	sec;
-extern uint32_t	min;
-uint16_t alarm_trans_cnt = 0;
-uint16_t alarm_pause_cnt = 0;
+uint8_t	sec = 0;			// секунды
+uint32_t	min = 0;			// минуты
+uint16_t alarm_trans_cnt = 0;		// счетчик времени передачи аварийного оповещения
+uint16_t alarm_pause_cnt = 0;		// счетчик паузы аварийного оповещения
 
-uint8_t n = 0;
-uint8_t n_IC = 0;
-uint16_t	CCR1tmp = 0;
-uint8_t n_stop = 0;
+uint8_t n = 0;									// счет момента измерения
+uint8_t n_IC = 0;								// режим захвата частоты внешнего запуска 1 - захват, 0 - нет
+uint16_t	CCR1tmp = 0;					// регистр сравнения частоты
+uint8_t n_stop = 0;							// счет импульсов плавного останова
+uint8_t  n_s;										// триггер смены длительности плавного запуска и останова
 
-uint8_t diag = 0, m = 0, def = 0;
+uint8_t diag = 0;								// триггер диагностики
+uint8_t def = 0;								// триггер сработки защиты по току
 
-uint8_t CodeMode = 0;
-uint8_t SendForm = 0;			// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария, 4 - тест меток
-uint8_t RepeatNum = 0;
+uint8_t CodeMode = 0;						// кодировка
+uint8_t SendForm = 0;						// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария, 4 - тест меток
+uint8_t RepeatNum = 0;					// число повторов
 
-extern uint8_t  SoftStart;
-extern UART_HandleTypeDef huart1;
 
-uint16_t freq;
-uint32_t tmpData = 43690;
-uint8_t  tmpComand = 0;
 
-_Bool StartSend = 0;
-_Bool StopDiag = 0;
 
-extern uint32_t aCNT;
-extern uint8_t  bCNT;
+uint16_t freq;									// рабочая частота
+uint32_t tmpData = 43690;				// вызываемый номер
+uint8_t  tmpComand = 0;					// вызываемая команда
 
-StatusSystem_t STATUS;
-SettingParametrs_t SETUP;
-UART2_Queue_Data UART2RecvData;
+_Bool StartSend = 0;						// запуск передачи
+_Bool StopDiag = 0;							// остановка диагностики
 
-UART2Recv_t UART2_RecvType;
+					
 
-void CommandPrep(Cmd_Type cmd, const char fmt, ...);
+
+StatusSystem_t STATUS;						// структура статуса
+SettingParametrs_t SETUP;					// структура настроек
+UART2_Queue_Data UART2RecvData;		// структура обмена данными
+
+UART2Recv_t UART2_RecvType;				// тип принимаемых данных
+
+
 
 	// Расчет длительностей импульсов
 void TimingCalc(void)
@@ -509,9 +517,7 @@ void SendData(uint32_t data)
 		
 		//Diag();
 		#ifndef DEBUG
-		if((STATUS.ant_break[0]==1)||(STATUS.ant_break[1]==1)||(STATUS.ant_break[2]==1)||(STATUS.ant_break[3]==1)||
-			 (STATUS.ant_fuse[0]==1)||(STATUS.ant_fuse[1]==1)||(STATUS.ant_fuse[2]==1)||(STATUS.ant_fuse[3]==1)){}
-			else if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
+		if((SETUP.ant[0]==1)||(SETUP.ant[1]==1)||(SETUP.ant[2]==1)||(SETUP.ant[3]==1))
 		#endif
 			{
 		// установка стартовых параметров
@@ -542,8 +548,11 @@ void SendData(uint32_t data)
 		else
 			TimeOut_en = 0;
 #endif
+		if ((CodeMode == 1) || (CodeMode == 2) || (CodeMode == 3))	// если кодировка радиус
+			TIM6 -> ARR = 772;					// установка скорости передачи ~0.343 мс
+		else
+			TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 //		if(def == 0)
@@ -589,7 +598,10 @@ void SendData(uint32_t data)
 		else
 			TimeOut_en = 0;
 #endif
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		if ((CodeMode == 1) || (CodeMode == 2) || (CodeMode == 3))	// если кодировка радиус
+			TIM6 -> ARR = 772;					// установка скорости передачи ~0.343 мс
+		else
+			TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 //		if(def == 0)
@@ -635,7 +647,11 @@ void SendData(uint32_t data)
 			TimeOut_en = 0;
 #endif
 		
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		if ((CodeMode == 1) || (CodeMode == 2) || (CodeMode == 3))	// если кодировка радиус
+			TIM6 -> ARR = 772;					// установка скорости передачи ~0.343 мс
+		else
+			TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 //		if(def == 0)
@@ -697,7 +713,10 @@ void SendAlarm(uint32_t data)
 			TimeOut_en = 0;
 #endif
 		
-				TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		if ((CodeMode == 1) || (CodeMode == 2) || (CodeMode == 3))	// если кодировка радиус
+			TIM6 -> ARR = 772;					// установка скорости передачи ~0.343 мс
+		else
+			TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
 				TIM6 -> EGR  |= TIM_EGR_UG;
 				TIM6 -> CNT = 0;
@@ -827,9 +846,13 @@ void SendAlarm(uint32_t data)
 			TimeOut_en = 0;
 #endif
 		
-		TIM6 -> EGR  |= TIM_EGR_UG;
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
 		
+		if ((CodeMode == 1) || (CodeMode == 2) || (CodeMode == 3))	// если кодировка радиус
+			TIM6 -> ARR = 772;					// установка скорости передачи ~0.343 мс
+		else
+			TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*BR);					// установка скорости передачи
+		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		TIM6 -> CNT = 0;
 //		if(def == 0)
 //			HAL_TIM_Base_Start_IT(&htim6);														// запуск передачи
@@ -861,14 +884,14 @@ void SendAlarm(uint32_t data)
 			case pwmSTART:
 				STATUS.trans_state = 1;
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 			case pwmSTOP:
 				alarm_trans_cnt = 0;
 				alarm_pause_cnt = 0;
 				STATUS.trans_state = 0;
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 		}
 				
@@ -908,11 +931,11 @@ void Generator(void)
 		{
 			case pwmSTART:
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 			case pwmSTOP:
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 		}
 	
@@ -954,11 +977,11 @@ void ProcDemagnetization(void)
 		{
 			case pwmSTART:
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 			case pwmSTOP:
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 		}
 	
@@ -983,7 +1006,10 @@ void Parsing(uint32_t data, uint8_t command)
 	uint8_t	dataBIN[16];
 	uint8_t dataR1[8];
 	uint8_t dataR2[10];
+	uint8_t dataR2m[16];
 	uint8_t datacom[4];
+	uint8_t datacom2m[8];
+	uint8_t datacrc8[8];
 	uint8_t BaseLenght;
 	
 	switch(CodeMode){
@@ -996,7 +1022,7 @@ void Parsing(uint32_t data, uint8_t command)
 				dataBIN[i] = (data >> i)&1;					// здесь получается направление младшим битом вперед
 		
 		
-		for(uint8_t ind = 0; ind < DataLenght; ind++)
+		for(uint16_t ind = 0; ind < DataLenght; ind++)
 			{
 				
 				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
@@ -1064,7 +1090,7 @@ void Parsing(uint32_t data, uint8_t command)
 				dataR1[i] = (data >> i)&1;
 		
 		
-			for(uint8_t ind = 0; ind < DataLenght; ind++)
+			for(uint16_t ind = 0; ind < DataLenght; ind++)
 			{
 				
 				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
@@ -1122,7 +1148,7 @@ void Parsing(uint32_t data, uint8_t command)
 			for(uint8_t i = 0; i < 4; i++)
 					datacom[i] = (command >> i)&1;
 		
-			for(uint8_t ind = 0; ind < DataLenght; ind++)
+			for(uint16_t ind = 0; ind < DataLenght; ind++)
 			{
 				
 				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
@@ -1193,12 +1219,154 @@ void Parsing(uint32_t data, uint8_t command)
 					break;
 					case 21:				// stop
 						Data[ind] = STOP_BIT;
-					break;
+					break;}
+				
 					
-					}
 			}
 		break;
+			case 3:									// радиус 2м
+								//	sy s d p s d p s d
+			BaseLenght = (15+1+8+2+1+8+2+1+8+2+1+8+2);
+			DataLenght = BaseLenght*RepeatNum;
+			if(DataLenght > MAXDAT)
+				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
+			
+			uint8_t crcbuff[3];
+			uint8_t crc8;
+			
+			crcbuff[0] = command;
+			crcbuff[1] = data;
+			crcbuff[2] = data >> 8;
+			
+			crc8 = CRC8((uint8_t *)&crcbuff, sizeof(crcbuff));
+			
+			
+			for(uint8_t i = 0; i < 16; i++)
+					dataR2m[i] = (data >> i)&1;
+		
+			for(uint8_t i = 0; i < 8; i++)
+					datacom2m[i] = (command >> i)&1;
+			
+			for(uint8_t i = 0; i < 8; i++)
+					datacrc8[i] = (crc8 >> i)&1;
+			
+		
+			for(uint16_t ind = 0; ind < DataLenght; ind++)		// заполнение буфера передачи
+			{
+				
+				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
+				
+				if(tind < 15)			// начало кадра
+					Data[ind] = 1;
+				
+				if((tind == 15) || (tind == 26) || (tind == 37) || (tind == 48))		// стартовые биты
+					Data[ind] = START_BIT;
+				
+				if((tind == 24) || (tind == 25) || (tind == 35) || (tind == 36) ||
+					 (tind == 46) || (tind == 47) || (tind == 57) || (tind == 58))		// стоповые биты
+					Data[ind] = STOP_BIT;
+				
+				switch(tind){
+					case 16:					// data 0
+						Data[ind] = dataR2m[0];
+					break;
+					case 17:					// data 1
+						Data[ind] = dataR2m[1];
+					break;
+					case 18:					// data 2
+						Data[ind] = dataR2m[2];
+					break;
+					case 19:					// data 3
+						Data[ind] = dataR2m[3];
+					break;
+					case 20:					// data 4
+						Data[ind] = dataR2m[4];
+					break;
+					case 21:					// data 5
+						Data[ind] = dataR2m[5];
+					break;
+					case 22:					// data 6
+						Data[ind] = dataR2m[6];
+					break;
+					case 23:					// data 7
+						Data[ind] = dataR2m[7];
+					break;
+					case 27:					// data 8
+						Data[ind] = dataR2m[8];
+					break;
+					case 28:					// data 9
+						Data[ind] = dataR2m[9];
+					break;
+					case 29:					// data 10
+						Data[ind] = dataR2m[10];
+					break;
+					case 30:					// data 11
+						Data[ind] = dataR2m[11];
+					break;
+					case 31:					// data 12
+						Data[ind] = dataR2m[12];
+					break;
+					case 32:					// data 13
+						Data[ind] = dataR2m[13];
+					break;
+					case 33:					// data 14
+						Data[ind] = dataR2m[14];
+					break;
+					case 34:					// data 15
+						Data[ind] = dataR2m[15];
+					break;
+					case 38:					// crc 0
+						Data[ind] = datacrc8[0];
+					break;
+					case 39:					// crc 1
+						Data[ind] = datacrc8[1];
+					break;
+					case 40:					// crc 2
+						Data[ind] = datacrc8[2];
+					break;
+					case 41:					// crc 3
+						Data[ind] = datacrc8[3];
+					break;
+					case 42:					// crc 4
+						Data[ind] = datacrc8[4];
+					break;
+					case 43:					// crc 5
+						Data[ind] = datacrc8[5];
+					break;
+					case 44:					// crc 6
+						Data[ind] = datacrc8[6];
+					break;
+					case 45:					// crc 7
+						Data[ind] = datacrc8[7];
+					break;
+					case 49:					// com 0
+						Data[ind] = datacom2m[0];
+					break;
+					case 50:					// com 1
+						Data[ind] = datacom2m[1];
+					break;
+					case 51:					// com 2
+						Data[ind] = datacom2m[2];
+					break;
+					case 52:					// com 3
+						Data[ind] = datacom2m[3];
+					break;
+					case 53:					// com 4
+						Data[ind] = datacom2m[4];
+					break;
+					case 54:					// com 5
+						Data[ind] = datacom2m[5];
+					break;
+					case 55:					// com 6
+						Data[ind] = datacom2m[6];
+					break;
+					case 56:					// com 7
+						Data[ind] = datacom2m[7];
+					break;
+				}
 	}
+			break;
+}
 }
 
 
@@ -1263,12 +1431,12 @@ void ProcData(void)
 			case pwmSTART:
 				STATUS.trans_state = 1;
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 			case pwmSTOP:
 				STATUS.trans_state = 0;
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 		}
 				
@@ -1367,12 +1535,12 @@ void Diag(void)
 			case pwmSTART:
 				STATUS.trans_state = 1;
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 			case pwmSTOP:
 				STATUS.trans_state = 0;
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 			break;
 		}
 				
@@ -1408,14 +1576,14 @@ void Diag(void)
 			case pwmSTART:
 				STATUS.trans_state = 2;
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 				//CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			break;
 			case pwmSTOP:
 				STATUS.trans_state = 0;
 				StopPWM();
 				SoftStart = ON;//
-				State = pwmBISY;
+				State = pwmBUSY;
 				//CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			break;
 		}
@@ -1479,12 +1647,12 @@ void Diag(void)
 		{
 			case pwmSTART:
 				StartPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 				n_IC  = 0;
 			break;
 			case pwmSTOP:
 				StopPWM();
-				State = pwmBISY;
+				State = pwmBUSY;
 				n_IC = 1;
 			break;
 		}
@@ -1500,12 +1668,12 @@ void Diag(void)
 				n = 1;
 				break;
 			case 1:
-				TIM7 -> ARR = Pulse_3/2 - 80*Tick;	// начало импульса
+				TIM7 -> ARR = Pulse_3/2 - RiseDelay*Tick;	// начало импульса
 				n = 9;
 				HAL_TIM_Base_Start_IT(&htim7);
 				break;
 			case 2:
-				TIM7 -> ARR = DeathTime + 20*Tick;	// начало импульса
+				TIM7 -> ARR = DeathTime + PauseDelay*Tick;	// начало импульса
 				HAL_TIM_Base_Start_IT(&htim7);
 				n = 6;
 				break;
@@ -1513,17 +1681,17 @@ void Diag(void)
 				n = 3;
 				break;
 			case 3:
-				TIM7 -> ARR = Pulse_3 - 80*Tick;	// конец импульса
+				TIM7 -> ARR = Pulse_3 - FallDelay*Tick;	// конец импульса
 			if(diag ==1 )
 					HAL_TIM_Base_Stop_IT(&htim7);
 				n = 4;
 				break;
 			case 4:
-				TIM7 -> ARR = DeathTime + 80*Tick;		// начало импульса
+				TIM7 -> ARR = DeathTime + RiseDelay*Tick;		// начало импульса
 				n = 5;
 				break;
 			case 5:
-				TIM7 -> ARR = Period - Pulse_1 - 80*Tick;		// конец импульса
+				TIM7 -> ARR = Period - Pulse_1 - FallDelay*Tick;		// конец импульса
 				n = 7;
 				break;
 			case 7:
@@ -2155,15 +2323,15 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[0] == 1)
 		{
-			STATUS.ia[0] = 0.5f*I1a/DiagCNT;
+			STATUS.ia[0] = 0.354f*I1a/DiagCNT;
 			STATUS.im[0] = I1m;
 			
 			if(STATUS.trans_state == 2)
-				STATUS.l[0]  = (L1-Ld)*1000;						//1000 в мГн
+				STATUS.l[0]  = L1*1000;						//1000 в мГн
 			if(STATUS.trans_state == 2)
 				STATUS.ra[0] = R1a;
 			
-			STATUS.pa[0] = 0.5f*P1a/(DiagCNT*1000);				// в кВт
+			STATUS.pa[0] = 0.354f*P1a/(DiagCNT*1000);				// в кВт
 			STATUS.pm[0] = P1m/1000;								// в кВт
 
 			STATUS.c[0]  = C1corr;							// в мкФ
@@ -2181,7 +2349,7 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[1] == 1)
 		{
-			STATUS.ia[1] = 0.5f*I2a/DiagCNT;
+			STATUS.ia[1] = 0.354f*I2a/DiagCNT;
 			STATUS.im[1] = I2m;
 			
 			if(STATUS.trans_state == 2)
@@ -2189,7 +2357,7 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[1] = R2a;
 			
-			STATUS.pa[1] = 0.5f*P2a/(DiagCNT*1000);
+			STATUS.pa[1] = 0.354f*P2a/(DiagCNT*1000);
 			STATUS.pm[1] = P2m/1000;
 
 			STATUS.c[1]  = C2corr;
@@ -2207,7 +2375,7 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[2] == 1)
 		{
-			STATUS.ia[2] = 0.5f*I3a/DiagCNT;
+			STATUS.ia[2] = 0.354f*I3a/DiagCNT;
 			STATUS.im[2] = I3m;
 			
 			if(STATUS.trans_state == 2)
@@ -2215,7 +2383,7 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[2] = R3a;
 			
-			STATUS.pa[2] = 0.5f*P3a/(DiagCNT*1000);
+			STATUS.pa[2] = 0.354f*P3a/(DiagCNT*1000);
 			STATUS.pm[2] = P3m/1000;
 
 			STATUS.c[2]  = C3corr;
@@ -2233,7 +2401,7 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[3] == 1)
 		{
-			STATUS.ia[3] = 0.5f*I4a/DiagCNT;
+			STATUS.ia[3] = 0.354f*I4a/DiagCNT;
 			STATUS.im[3] = I4m;
 			
 			if(STATUS.trans_state == 2)
@@ -2241,7 +2409,7 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[3] = R4a;
 			
-			STATUS.pa[3] = 0.5f*P4a/(DiagCNT*1000);
+			STATUS.pa[3] = 0.354f*P4a/(DiagCNT*1000);
 			STATUS.pm[3] = P4m/1000;
 
 			STATUS.c[3]  = C4corr;
@@ -2463,7 +2631,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 //				}
 //				else
 					//SendData(tmpData);
-				DiagnSendData();
+				DiagnSendComandnData();
 			}
 			else if(Mode == AUX)
 				StartExternPWM();
@@ -2542,11 +2710,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_COMMAND:
 			SETUP.command = UART2RecvData.value.i;
 			tmpComand = SETUP.command;
-			if(STATUS.trans_state == 0)																				// запуск передачи
-		{
-			if(Mode == MAIN)
-				DiagnSendComand();
-		}
+//			if(STATUS.trans_state == 0)																				// запуск передачи
+//		{
+//			if(Mode == MAIN)
+//				DiagnSendComandnData();
+//		}
 			break;
 		case U2CT_ANTENNA_1:																					// состояние антенны1 подключена/отключена
 			SETUP.ant[0] = UART2RecvData.value.i;
@@ -3089,3 +3257,14 @@ void LoadSetting(void)
 	Us4 =							*(__IO float*)(ADR_START + 100);
 }
 
+
+uint8_t CRC8(uint8_t *pcBlock, uint8_t len) {
+    uint8_t crc = 0xFF;
+    uint8_t i;
+    while (len--) {
+        crc ^= *pcBlock++;
+        for (i = 0; i < 8; i++)
+            crc = crc & 0x80 ? (crc << 1) ^ 0x31 : crc << 1;
+    }
+    return crc;
+}

@@ -71,7 +71,7 @@ uint32_t Overlap;								// рабочая длительность паузы в тиках таймера
 uint32_t TimeLimit_u = 650;			// максимальная длительность импульса верхних ключей
 uint32_t TimeLimit;							// рабочая длительность импульса верхних ключей
 uint32_t Tick = 8;							// количество тиков таймера в 1 мкс
-uint32_t SoftTick = 0;
+uint8_t  SoftStart = ON;				// плавный запуск вкл/выкл
 uint8_t	 State = pwmSTART;			// состояние передачи 0 - запуск, 1 - передача, 2 - останов
 uint16_t DataLenght = 8;				// длина сообщения
 uint8_t  Position = 0;					// позиция в сообщении
@@ -116,7 +116,7 @@ extern float UI_fuse[];
 extern float Us4;
 extern float C4;
 
-uint8_t  SoftStart = ON;
+
 
 float ftmp1;
 float ftmp2;
