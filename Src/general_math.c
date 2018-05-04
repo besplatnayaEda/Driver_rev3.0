@@ -63,7 +63,19 @@ float U3rise1 = CONST;
 float U3fall1 = CONST;	
 
 float U4rise1 = CONST;				
-float U4fall1 = CONST;	
+float U4fall1 = CONST;
+
+float U1r1a = 0;				// усредненное значение после переключения
+float U1f1a = 0;				// усредненное знаяение перед переключением 
+
+float U2r1a = 0;				
+float U2f1a = 0;	
+
+float U3r1a = 0;				
+float U3f1a = 0;	
+
+float U4r1a = 0;				
+float U4f1a = 0;
 
 float U1rise2 = CONST;				
 float U1fall2 = CONST;
@@ -195,10 +207,11 @@ float Us4 = 48;
 	// переменные для диагностики 
 uint32_t DiagTime = 1;		// период диагностики
 uint32_t DiagCNT = 0;			// количество измерений диагностики
-uint32_t DiagPulse = 0;
+uint32_t DiagPulse = 0;	
 uint8_t	 RiseDelay = 80;	// задержка перед измерением в момент переключения
 uint8_t	 FallDelay = 80;	// задержка перед измерением в момент перед переключением
 uint8_t	 PauseDelay = 20;	// задержка перед измерением в момент после паузы
+uint8_t  diag_mean_cnt;		// счетчик усреднения индуктивности, емкости и сопротивлеия
 
 	// переменные для синхронизации
 uint8_t		TimeOut_en;			// запуск таймера для синхронизации
@@ -246,7 +259,7 @@ _Bool StartSend = 0;						// запуск передачи
 _Bool StopDiag = 0;							// остановка диагностики
 
 					
-
+uint32_t tmp0;
 
 StatusSystem_t STATUS;						// структура статуса
 SettingParametrs_t SETUP;					// структура настроек
@@ -460,9 +473,72 @@ void StopPWM(void)
 				CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 				break;
 			}
-			
-			
 				
+	}
+	
+	// запуск передачи диагностики
+	void StartPWMdiag(void)
+	{
+
+			TIM1 -> CNT = 0;
+			TIM1 -> SR &= TIM_SR_UIF;
+			TIM1 -> SR &= TIM_SR_CC1IF;
+			TIM1 -> SR &= TIM_SR_CC2IF;
+			TIM1 -> SR &= TIM_SR_CC3IF;
+			TIM1 -> SR &= TIM_SR_CC4IF;
+			TIM1 -> SR &= TIM_SR_CC5IF;
+			TIM1 -> SR &= TIM_SR_CC6IF;
+		
+			TIM1->DIER |= (TIM_IT_CC1);
+			TIM_CCxChannelCmd(TIM1, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+			TIM1->BDTR|=(TIM_BDTR_MOE);
+			
+			TIM1->CR1|=(TIM_CR1_CEN);
+
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);				// запуск шим
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+	
+			TIM1 -> BDTR |= ~TIM_BREAK_DISABLE;							// включение выходов шим
+			TIM7 -> CNT   = 0;
+			TIM7 -> EGR  |= TIM_EGR_UG;
+
+			TIM7 -> ARR   = Pulse_1 - DeathTime + 20*Tick;
+			TIM7 -> DIER |= TIM_IT_UPDATE;
+			TIM7 -> CR1  |= TIM_CR1_CEN;
+
+	}
+		
+	
+	// остановка передачи диагностики
+	void StopPWMdiag(void)
+	{
+//		if(diag == 1)
+//			StopDiag = 1;
+			
+//		HAL_TIM_Base_Stop_IT(&htim6);											// остановкка таймера данных
+		HAL_TIM_Base_Stop_IT(&htim7);											// остановка таймера ацп
+		TIM7 -> EGR  |= TIM_EGR_UG;
+			
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);					// остановка одной диагонали
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_4);
+		HAL_TIM_PWM_Stop_IT(&htim1, TIM_CHANNEL_1);					// остановка другой диагонали
+		TIM1->CR1 &=~TIM_CR1_ARPE;
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+					
+		TIM1 -> BDTR &= TIM_BREAK_ENABLE;										// блокировка выходов шим
+		n = 0;
+		TIM1 -> CNT = 0;
+		TIM1 -> ARR = 0;
+		TIM1 -> CCR1 = 0;
+		TIM1 -> CCR2 = 0;
+		TIM1 -> CCR3 = 0;
+		TIM1 -> CCR4 = 0;
+		TIM7 -> ARR = 0;
+//		TIM6 -> CNT = 0;
+		TIM7 -> CNT = 0;
+		TIM7 -> SR	 |= TIM_SR_UIF;
+
 	}
 		
 	// диагностика и отправка номера
@@ -1460,6 +1536,7 @@ void Diag(void)
 		State = pwmSTART;																						// запуск шим			
 		TransMode = DIAG;																						// режим работы передатчика
 		diag = 0;
+		diag_mean_cnt = 0;
 		n = 0;
 		CalibrateMean();
 		
@@ -1480,10 +1557,10 @@ void Diag(void)
 #endif
 		TIM6 -> EGR  |= TIM_EGR_UG;
 		
-		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*10);						// установка длительности диагностики
+		TIM6 -> ARR = SystemCoreClock/((TIM6->PSC+1)*15);						// установка длительности диагностики
 	
 		TIM6 -> CNT = 0;
-		
+		tmp0 = 0;
 //		if(def == 0)
 //			HAL_TIM_Base_Start_IT(&htim6);															// запуск диагностики
 	}
@@ -1554,22 +1631,52 @@ void Diag(void)
 	// обработка контроля антенн
 	void ProcDiag(void)
 	{
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		if(diag == 1)
+		{
+//			State = pwmSTOP;																					// остановка на конечной частоте
+//			FormSTATUS();
+//			SendPacketUART();
+			
+			
+//			Tick = SystemCoreClock/((TIM1->PSC+1)*2*1000000);
+//			freq = (f1 + f2)/2;																					// стартовая частота
+//			TimeLimit = 10*Tick;																				// установка стартовой длительности 10 тиков
+//			State = pwmSTART;																						// запуск шим			
+//			diag = 0;
+			n = 0;
+			
+			
+			
+			StopPWMdiag();
+			
+			psk = SystemCoreClock/((TIM1->PSC+1)*2*freq);								// расчет периода таймера
+			TimeLimit_u = 2*TimeLimit_u;
+			TimingCalc();																								// расчет длитльностей импульсов
+			SetTiming();																								// установка длительностей импульсов
+			f_change = 0;
+			
+			StartPWMdiag();
+//			TIM6 -> EGR  |= TIM_EGR_UG;
+//			TIM6 -> CNT = 0;
+//			HAL_TIM_Base_Start_IT(&htim6);															// запуск диагностики
+		}
+		else{
+			psk = SystemCoreClock/((TIM1->PSC+1)*2*freq);								// расчет периода таймера
+			TimeLimit_u = 2*TimeLimit_u;
+			TimingCalc();																								// расчет длитльностей импульсов
+			SetTiming();																								// установка длительностей импульсов
+			f_change = 0;
+		}																							
+		psk = SystemCoreClock/((TIM1->PSC+1)*40*freq);								// расчет периода таймера
+		diag = 1;
+		tmp0++;
+		if(diag_mean_cnt == 15)
 		{
 			State = pwmSTOP;																					// остановка на конечной частоте
 			FormSTATUS();
 			SendPacketUART();
-			//StopDiag = 1;
 		}
-		else{
-		psk = SystemCoreClock/((TIM1->PSC+1)*2*freq);								// расчет периода таймера
-		TimeLimit_u = 2*TimeLimit_u;
-		TimingCalc();																								// расчет длитльностей импульсов
-		SetTiming();																								// установка длительностей импульсов
-		f_change = 0;
-		}																							
-		psk = SystemCoreClock/((TIM1->PSC+1)*40*freq);								// расчет периода таймера
-		diag = 1;
 		
 		switch(State)																								// остановка или запуск шим
 		{
@@ -1577,14 +1684,12 @@ void Diag(void)
 				STATUS.trans_state = 2;
 				StartPWM();
 				State = pwmBUSY;
-				//CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			break;
 			case pwmSTOP:
 				STATUS.trans_state = 0;
 				StopPWM();
 				SoftStart = ON;//
 				State = pwmBUSY;
-				//CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 			break;
 		}
 	
@@ -1757,16 +1862,34 @@ void GetVoltage(void)
 				U2rise1 = (ADC2buff)*Vsupp/Effbit-mean2;
 				U3rise1 = (ADC3buff)*Vsupp/Effbit-mean3;
 				U4rise1 = (ADC4buff)*Vsupp/Effbit-mean4;
-#ifndef DEBUG
+				
+				U1r1a += U1rise1;
+				U2r1a += U2rise1;
+				U3r1a += U3rise1;
+				U4r1a += U4rise1;
+				
+				diag_mean_cnt++;
+			
+			if (diag_mean_cnt == 15)
+			{
+
 			// определение целосности антенны по первому импульсу
+			
+				U1r1a /= 15;
+				U2r1a /= 15;
+				U3r1a /= 15;
+				U4r1a /= 15;
+				
+#ifndef DEBUG				
+				
 			if(SETUP.ant[0] == 1)
 				{
-					if(fabs(U1rise1) < BREAK)
+					if(fabs(U1r1a) < BREAK)
 						STATUS.ant_break[0] = 1;
 					else
 						STATUS.ant_break[0] = 0;
 					
-					if(fabs(U1rise1) > FUSE)
+					if(fabs(U1r1a) > FUSE)
 						STATUS.ant_fuse[0] = 1;
 					else
 						STATUS.ant_fuse[0] = 0;
@@ -1779,12 +1902,12 @@ void GetVoltage(void)
 				
 				if(SETUP.ant[1] == 1)
 				{
-					if(fabs(U2rise1) < BREAK)
+					if(fabs(U2r1a) < BREAK)
 						STATUS.ant_break[1] = 1;
 					else
 						STATUS.ant_break[1] = 0;
 					
-					if(fabs(U2rise1) > FUSE)
+					if(fabs(U2r1a) > FUSE)
 						STATUS.ant_fuse[1] = 1;
 					else
 						STATUS.ant_fuse[1] = 0;
@@ -1797,12 +1920,12 @@ void GetVoltage(void)
 					
 				if(SETUP.ant[2] == 1)
 				{
-					if(fabs(U3rise1) < BREAK)
+					if(fabs(U3r1a) < BREAK)
 						STATUS.ant_break[2] = 1;
 					else
 						STATUS.ant_break[2] = 0;
 					
-					if(fabs(U3rise1) > FUSE)
+					if(fabs(U3r1a) > FUSE)
 						STATUS.ant_fuse[2] = 1;
 					else
 						STATUS.ant_fuse[2] = 0;
@@ -1816,12 +1939,12 @@ void GetVoltage(void)
 					
 				if(SETUP.ant[3] == 1)
 				{
-					if(fabs(U4rise1) < BREAK)
+					if(fabs(U4r1a) < BREAK)
 						STATUS.ant_break[3] = 1;
 					else
 						STATUS.ant_break[3] = 0;
 					
-					if(fabs(U4rise1) > FUSE)
+					if(fabs(U4r1a) > FUSE)
 						STATUS.ant_fuse[3] = 1;
 					else
 						STATUS.ant_fuse[3] = 0;
@@ -1839,20 +1962,23 @@ void GetVoltage(void)
 					if(STATUS.ant_break[i])
 						SETUP.ant[i] = 0;
 				}
-				
+			
 #endif							
 				
-				L1 = CalculateL(U1rise1,0,Us1);
-				L2 = CalculateL(U2rise1,0,Us2);
-				L3 = CalculateL(U3rise1,0,Us3);
-				L4 = CalculateL(U4rise1,0,Us4);
+				L1 = CalculateL(U1r1a,0,Us1);
+				L2 = CalculateL(U2r1a,0,Us2);
+				L3 = CalculateL(U3r1a,0,Us3);
+				L4 = CalculateL(U4r1a,0,Us4);
 				
 								
 				C1corr = CalculateC(L1);
 				C2corr = CalculateC(L2);
 				C3corr = CalculateC(L3);
 				C4corr = CalculateC(L4);
-			
+			}
+
+				
+
 				
 				break;
 			case 10:																						// первый импульс
@@ -2003,18 +2129,30 @@ void GetVoltage(void)
 
 				if(STATUS.trans_state == 2){
 
-							
-				R1 = CalculateR(U1rise1,U1fall1, C1, L1);
-				R2 = CalculateR(U2rise1,U2fall1, C2, L2);
-				R3 = CalculateR(U3rise1,U3fall1, C3, L3);
-				R4 = CalculateR(U4rise1,U4fall1, C4, L4);
+				U1f1a += U1fall1;
+				U2f1a += U2fall1;
+				U3f1a += U3fall1;
+				U4f1a += U4fall1;
+			
+			if (diag_mean_cnt == 15)
+			{
+			
+				U1f1a /= 15;
+				U2f1a /= 15;
+				U3f1a /= 15;
+				U4f1a /= 15;
+					
+				R1 = CalculateR(U1r1a,U1f1a, C1, L1);
+				R2 = CalculateR(U2r1a,U2f1a, C2, L2);
+				R3 = CalculateR(U3r1a,U3f1a, C3, L3);
+				R4 = CalculateR(U4r1a,U4f1a, C4, L4);
 				
 
 				R1a += R1;
 				R2a += R2;
 				R3a += R3;
 				R4a += R4;
-				}
+				}}
 				P1 = CalculateP(I1, R1);
 				P2 = CalculateP(I2, R2);
 				P3 = CalculateP(I3, R3);
@@ -2445,7 +2583,17 @@ void GetVoltage(void)
 		P1m = 0;
 		P2m = 0;
 		P3m = 0;
-		P4m = 0;		
+		P4m = 0;	
+
+		U1r1a = 0;
+		U2r1a = 0;
+		U3r1a = 0;
+		U4r1a = 0;
+				
+		U1f1a = 0;
+		U2f1a = 0;
+		U3f1a = 0;
+		U4f1a = 0;
 #ifdef DEBUG
 
 					STATUS.ant_break[0] = 0;
@@ -2544,7 +2692,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
       break;
     case U2CT_OVERLAP:																						// перекрытие
       SETUP.overlap = UART2RecvData.value.i;
-			Overlap_u 		= -fabsf(SETUP.overlap);												// временное с обрптным перекрытием
+			Overlap_u 		= -fabsf((float)SETUP.overlap);												// временное с обрптным перекрытием
       break;
     case U2CT_TIME_LIMIT:																					// ограниечение длительности
       SETUP.duration_limit = UART2RecvData.value.i;
@@ -3098,7 +3246,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Uart_RX_TimeOut_cnt++;
 		}
 		
-		if((huart1.RxState == HAL_UART_STATE_READY) )																						// таймаут, если завис 
+		if(huart1.RxState == HAL_UART_STATE_READY) 																						// таймаут, если завис 
 		{
 			if(Uart_RX_TimeOut_cnt == 100)
 			{				

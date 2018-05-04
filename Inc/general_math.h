@@ -58,7 +58,7 @@
 #define Effbit 4096
 
 // версия ПО и платы драйвера
-#define FIRMWARE	0xDA13U		// ver 27.4.18-3
+#define FIRMWARE	0x2293U		// ver 4.5.18-3
 #define HARDWARE	0x2991U
 
 // количесиво витков в обмотках
@@ -306,6 +306,8 @@ void TimingCalc(void);					// расчет длительностей управляющих импульсов
 void SetTiming(void);						// установка регистров
 void StartPWM(void);						// запуск шим
 void StopPWM(void);							// остановка передачи
+void StartPWMdiag(void);				// запуск диагностики
+void StopPWMdiag(void);					// остановка диагностики
 
 void CommandReply(Cmd_Type cmd, const char fmt, ...);		// отправка команды по уарт
 void SendPacketUART(void);															// отправка статуса
