@@ -243,6 +243,7 @@ uint8_t  n_s;										// триггер смены длительности плавного запуска и останова
 
 uint8_t diag = 0;								// триггер диагностики
 uint8_t def = 0;								// триггер сработки защиты по току
+uint8_t block_en = 0;						// блок запрета команд на запуск
 
 uint8_t CodeMode = 0;						// кодировка
 uint8_t SendForm = 0;						// 0 - шахтер, 1 - команда, 2 - шахтер и команда, 3 - авария, 4 - тест меток
@@ -473,6 +474,8 @@ void StopPWM(void)
 				CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 				break;
 			}
+			
+			block_en = 0;								// выключение запрета команд на запуск
 				
 	}
 	
@@ -553,6 +556,7 @@ void DiagnSendData(void)
 	// диагностика и команда
 void DiagnSendComand(void)
 {
+	block_en = 1;
 	SendForm = 1;
 	StartSend = 1;
 	StopDiag = 0;
@@ -562,6 +566,7 @@ void DiagnSendComand(void)
 	// диагностики и номер с командой
 void DiagnSendComandnData(void)
 {
+	block_en = 1;
 	SendForm = 2;
 	StartSend = 1;
 	StopDiag = 0;
@@ -571,6 +576,7 @@ void DiagnSendComandnData(void)
 	// диагностика и запуск аварии
 void DiagnSendAlarm(void)
 {
+	block_en = 1;
 	SendForm = 3;
 	StartSend = 1;
 	StopDiag = 0;
@@ -580,6 +586,7 @@ void DiagnSendAlarm(void)
 // диагностика и запуск тестирования меток
 	void DiagnSendTestTag(void)
 	{
+		block_en = 1;
 		SendForm = 4;
 		StartSend = 1;
 		StopDiag = 0;
@@ -2763,7 +2770,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_ENABLE:																							// запуск/останов передачи
 			SETUP.enable = UART2RecvData.value.i;
 			
-			if((SETUP.enable == 1)&&(STATUS.trans_state == 0)&&(SETUP.standby == 0))																				// запуск передачи
+			if((block_en == 0)&&(SETUP.standby == 0))																				// запуск передачи
 		{
 			
 			if(Mode == MAIN){
@@ -2805,10 +2812,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_DIAG:																								// режим контроля автоматически, вручную
 			SETUP.diag = UART2RecvData.value.i;
 			
-			if((SETUP.diag == 1)&&(STATUS.trans_state == 0)&&(SETUP.standby == 0))
+			if((block_en == 0)&&(SETUP.standby == 0))
 				Diag();
 			
-			SETUP.diag = 0;
+//			SETUP.diag = 0;
 			break;
 		case U2CT_CAP:																								// емкость вкл/выкл
 			SETUP.cap = UART2RecvData.value.i;
@@ -2834,7 +2841,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			SETUP.alarm_msg = UART2RecvData.value.i;
 			if(SETUP.alarm_msg)
 			{
-				if(STATUS.trans_state == 0)																				// запуск передачи
+				if((block_en == 0)&&(SETUP.standby == 0))																				// запуск передачи
 				{
 					if(Mode == MAIN)
 						DiagnSendAlarm();
@@ -2849,7 +2856,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_TEST_TAG:
 			SETUP.test_tag = UART2RecvData.value.i;
 			
-			if(STATUS.trans_state == 0)																				// запуск передачи
+			if((block_en == 0)&&(SETUP.standby == 0))																				// запуск передачи
 		{
 			if(Mode == MAIN)
 				DiagnSendTestTag();								

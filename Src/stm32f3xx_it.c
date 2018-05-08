@@ -361,7 +361,8 @@ void TIM1_UP_TIM16_IRQHandler(void)
 	if(min >= DiagTime)				// запуск диагностики каждый период
 	{
 		min = 0;
-		Diag();
+		if(SETUP.diag == 0)
+			Diag();
 	}
 #endif
   /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
