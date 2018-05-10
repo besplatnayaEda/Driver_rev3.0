@@ -2770,32 +2770,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		case U2CT_ENABLE:																							// запуск/останов передачи
 			SETUP.enable = UART2RecvData.value.i;
 			
-			if((block_en == 0)&&(SETUP.standby == 0))																				// запуск передачи
-		{
-			
-			if(Mode == MAIN){
-//				if(tmpData == 0)
-//				{
-//					SETUP.alarm_msg = 1;
-//					DiagnSendAlarm();
-//				}
-//				else if(tmpData == 65535)
-//				{
-//					SETUP.alarm_msg = 0;
-//					StopAlarm();
-//				}
-//				else
-					//SendData(tmpData);
-				DiagnSendComandnData();
-			}
-			else if(Mode == AUX)
-				StartExternPWM();
-			else if(Mode == GEN)
-				Generator();
-			
-		}
-		else if(SETUP.enable == 0)
-			StopPWM();
+			if(SETUP.enable == 1)
+			{
+				if((block_en == 0)&&(SETUP.standby == 0))																				// запуск передачи
+				{
+					if(Mode == MAIN)
+						DiagnSendComandnData();
+					else if(Mode == AUX)
+						StartExternPWM();
+					else if(Mode == GEN)
+						Generator();
+				}
+			} 
+			else
+				StopPWM();
 		
 			break;
 		case U2CT_MODE:																								// режим работы основной/внешний
