@@ -166,39 +166,7 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1530</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134222058</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\general_math.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Driver_rev3\../Src/general_math.c\1530</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>1672</LineNumber>
-          <EnabledFlag>0</EnabledFlag>
-          <Address>134247372</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\Users\KAArtemev\Desktop\РџСЂРѕС€РёРІРєРё\РРЅС‚РµР»Р»РµРєС‚СѓР°Р»СЊРЅС‹Р№ РґСЂР°Р№РІРµСЂ\Driver_rev3.0\Src\general_math.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Driver_rev3\../Src/general_math.c\1672</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>1537</LineNumber>
+          <LineNumber>1552</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -212,9 +180,9 @@
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>3</Number>
+          <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>1679</LineNumber>
+          <LineNumber>1694</LineNumber>
           <EnabledFlag>0</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>

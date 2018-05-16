@@ -29,9 +29,10 @@
 
 // порог контроля антенн
 #define FUSE				400e-3f				// замыкание
-#define BREAK				10e-3f		// обрыв
+#define BREAK				1e-3f		// обрыв
 
 #define MEAN_CNT		1000		// усреднение 
+#define MA_BUFF_LEN	10			// размер буфера скользящего среднего
 
 #define ON					1	
 #define OFF					0
@@ -313,7 +314,8 @@ void CommandReply(Cmd_Type cmd, const char fmt, ...);		// отправка команды по уа
 void SendPacketUART(void);															// отправка статуса
 
 
-void FormSTATUS(void);																	// формирование статуса 
+void FormSTATUS(void);																	// формирование статуса
+float MAfilter(float * buff, float data);								// фильтр скользящее среднее
 
 float CalculateSupply(int ANTlvl, int TRAlvl, int SUPlvl, char ANTnum);	// расчет выходного напряжения питания на антенне
 

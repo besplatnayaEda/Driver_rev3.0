@@ -28,7 +28,7 @@ extern uint8_t	Trig;
 extern float 		BR;
 extern uint8_t	State;
 extern uint16_t  DataLenght;
-extern uint8_t  Position;
+extern uint16_t  Position;
 extern uint8_t  Data[];
 extern uint32_t f1;
 extern uint32_t f2;
@@ -152,6 +152,12 @@ float P2a;
 float P3a;
 float P4a;
 
+// буфер фильтрованного значени€ среднего значени€ мощности
+float P1ab[MA_BUFF_LEN];
+float P2ab[MA_BUFF_LEN];
+float P3ab[MA_BUFF_LEN];
+float P4ab[MA_BUFF_LEN];
+
 // максимальна€ мощность в антеннах
 float P1m;
 float P2m;
@@ -181,6 +187,12 @@ float I1a;
 float I2a;
 float I3a;
 float I4a;
+ 
+// буфер фильтрованного значени€ среднего значени€ тока
+float I1ab[MA_BUFF_LEN];
+float I2ab[MA_BUFF_LEN];
+float I3ab[MA_BUFF_LEN];
+float I4ab[MA_BUFF_LEN];
 
 // максимальный ток
 float I1m;
@@ -218,6 +230,8 @@ uint8_t		TimeOut_en;			// запуск таймера дл€ синхронизации
 uint16_t	TimeOut_cnt;		// счетчик таймера 
 
 uint8_t		Uart_RX_TimeOut_cnt = 0;		// счетчик таймаута UART
+uint16_t	Diag_TimeOut_cnt = 0;		// счетчик таймаута диагностики
+uint8_t		Diag_TimeOut_en = 0;		// триггер таймаута диагностики
 
 
 // параметры дл€ контрол€ в режиме работы 
@@ -261,6 +275,8 @@ _Bool StopDiag = 0;							// остановка диагностики
 
 					
 uint32_t tmp0;
+float tmp1;
+float tmp2;
 
 StatusSystem_t STATUS;						// структура статуса
 SettingParametrs_t SETUP;					// структура настроек
@@ -1072,6 +1088,9 @@ void ProcDemagnetization(void)
 }
 
 	// парсинг номера в массив
+
+uint8_t crcbuff[4];
+			uint8_t crc8;
 void Parsing(uint32_t data, uint8_t command)
 {
 	if(RepeatNum == 0)
@@ -1225,44 +1244,56 @@ void Parsing(uint32_t data, uint8_t command)
 			DataLenght = BaseLenght*RepeatNum;
 			if(DataLenght > MAXDAT)
 				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
+			else
+				DataLenght = DataLenght;
+			
 			for(uint8_t i = 0; i < 10; i++)
 					dataR2[i] = (data >> i)&1;
 		
 			for(uint8_t i = 0; i < 4; i++)
 					datacom[i] = (command >> i)&1;
 		
+			// добавил 5 бит стартом перед всей посылкой
+//			Data[0] = 1;
+//			Data[1] = 1;
+//			Data[2] = 1;
+//			Data[3] = 1;
+//			Data[4] = 1;
+			
 			for(uint16_t ind = 0; ind < DataLenght; ind++)
 			{
-				
-				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
+//				if(ind < 22)
+//					tind = ind - floorl(ind/BaseLenght)*(BaseLenght) - 5;
+//				else
+					tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
 				
 				switch(tind){
 					case 0:					// start
 						Data[ind] = START_BIT;
 					break;
-					case 1:					// com 0
+					case 12:					// com 0
 						Data[ind] = datacom[0];
 					break;
-					case 2:					// com 1
+					case 13:					// com 1
 						Data[ind] = datacom[1];
 					break;
-					case 3:					// com 2
+					case 14:					// com 2
 						Data[ind] = datacom[2];
 					break;
-					case 4:					// com 3
+					case 15:					// com 3
 						Data[ind] = datacom[3];
 					break;
-					case 5:					// data 0
+					case 16:					// data 0
 						Data[ind] = dataR2[0];
 					break;
-					case 6:					// data 1
+					case 17:					// data 1
 						Data[ind] = dataR2[1];
 					break;
-					case 7:					// data 2
+					case 18:					// data 2
 						Data[ind] = dataR2[2];
 					break;
 					case 8:					// LSB
-						Data[ind] = LSB;
+						Data[ind] = MSB;
 					break;
 					case 9:					// stop
 						Data[ind] = STOP_BIT;
@@ -1273,29 +1304,29 @@ void Parsing(uint32_t data, uint8_t command)
 					case 11:					// start
 						Data[ind] = START_BIT;
 					break;
-					case 12:					// data 3
+					case 1:					// data 3
 						Data[ind] = dataR2[3];
 					break;
-					case 13:					// data 4
+					case 2:					// data 4
 						Data[ind] = dataR2[4];
 					break;
-					case 14:					// data 5
+					case 3:					// data 5
 						Data[ind] = dataR2[5];
 					break;
-					case 15:					// data 6
+					case 4:					// data 6
 						Data[ind] = dataR2[6];
 					break;
-					case 16:					// data 7
+					case 5:					// data 7
 						Data[ind] = dataR2[7];
 					break;
-					case 17:					// data 8
+					case 6:					// data 8
 						Data[ind] = dataR2[8];
 					break;
-					case 18:					// data 9
+					case 7:					// data 9
 						Data[ind] = dataR2[9];
 					break;
 					case 19:					// MSB
-						Data[ind] = MSB;
+						Data[ind] = LSB;
 					break;
 					case 20:					// stop
 						Data[ind] = STOP_BIT;
@@ -1309,17 +1340,18 @@ void Parsing(uint32_t data, uint8_t command)
 		break;
 			case 3:									// радиус 2м
 								//	sy s d p s d p s d
-			BaseLenght = (15+1+8+2+1+8+2+1+8+2+1+8+2);
-			DataLenght = BaseLenght*RepeatNum;
+			BaseLenght = ( 0+1+8+2+1+8+2+1+8+2+1+8+2);
+			DataLenght = 15+BaseLenght*RepeatNum;
 			if(DataLenght > MAXDAT)
 				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
 			
-			uint8_t crcbuff[3];
-			uint8_t crc8;
+//			uint8_t crcbuff[4];
+//			uint8_t crc8;
 			
-			crcbuff[0] = command;
-			crcbuff[1] = data;
-			crcbuff[2] = data >> 8;
+			crcbuff[0] = data;
+			crcbuff[1] = data >> 8;
+			crcbuff[2] = command;
+			crcbuff[3] = 0;
 			
 			crc8 = CRC8((uint8_t *)&crcbuff, sizeof(crcbuff));
 			
@@ -1333,119 +1365,124 @@ void Parsing(uint32_t data, uint8_t command)
 			for(uint8_t i = 0; i < 8; i++)
 					datacrc8[i] = (crc8 >> i)&1;
 			
-		
-			for(uint16_t ind = 0; ind < DataLenght; ind++)		// заполнение буфера передачи
+			for(uint8_t i = 0; i < 15; i++)					// начало кадра
+					Data[i] = 1;
+			
+			for(uint16_t ind = 15; ind < DataLenght; ind++)		// заполнение буфера передачи
 			{
+//				if(ind < 15)
+//					tind = 0;
+//				else
+					tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
 				
-				tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
+//				if(ind < 15)
+//					Data[ind] = 1;
 				
-				if(tind < 15)			// начало кадра
-					Data[ind] = 1;
-				
-				if((tind == 15) || (tind == 26) || (tind == 37) || (tind == 48))		// стартовые биты
+				if((tind == 15-15) || (tind == 26-15) || (tind == 37-15) || (tind == 48-15))		// стартовые биты
 					Data[ind] = START_BIT;
 				
-				if((tind == 24) || (tind == 25) || (tind == 35) || (tind == 36) ||
-					 (tind == 46) || (tind == 47) || (tind == 57) || (tind == 58))		// стоповые биты
+				if((tind == 24-15) || (tind == 25-15) || (tind == 35-15) || (tind == 36-15) ||
+					 (tind == 46-15) || (tind == 47-15) || (tind == 57-15) || (tind == 58-15))		// стоповые биты
 					Data[ind] = STOP_BIT;
 				
 				switch(tind){
-					case 16:					// data 0
+					case 16-15:					// data 0
 						Data[ind] = dataR2m[0];
 					break;
-					case 17:					// data 1
+					case 17-15:					// data 1
 						Data[ind] = dataR2m[1];
 					break;
-					case 18:					// data 2
+					case 18-15:					// data 2
 						Data[ind] = dataR2m[2];
 					break;
-					case 19:					// data 3
+					case 19-15:					// data 3
 						Data[ind] = dataR2m[3];
 					break;
-					case 20:					// data 4
+					case 20-15:					// data 4
 						Data[ind] = dataR2m[4];
 					break;
-					case 21:					// data 5
+					case 21-15:					// data 5
 						Data[ind] = dataR2m[5];
 					break;
-					case 22:					// data 6
+					case 22-15:					// data 6
 						Data[ind] = dataR2m[6];
 					break;
-					case 23:					// data 7
+					case 23-15:					// data 7
 						Data[ind] = dataR2m[7];
 					break;
-					case 27:					// data 8
+					case 27-15:					// data 8
 						Data[ind] = dataR2m[8];
 					break;
-					case 28:					// data 9
+					case 28-15:					// data 9
 						Data[ind] = dataR2m[9];
 					break;
-					case 29:					// data 10
+					case 29-15:					// data 10
 						Data[ind] = dataR2m[10];
 					break;
-					case 30:					// data 11
+					case 30-15:					// data 11
 						Data[ind] = dataR2m[11];
 					break;
-					case 31:					// data 12
+					case 31-15:					// data 12
 						Data[ind] = dataR2m[12];
 					break;
-					case 32:					// data 13
+					case 32-15:					// data 13
 						Data[ind] = dataR2m[13];
 					break;
-					case 33:					// data 14
+					case 33-15:					// data 14
 						Data[ind] = dataR2m[14];
 					break;
-					case 34:					// data 15
+					case 34-15:					// data 15
 						Data[ind] = dataR2m[15];
 					break;
-					case 38:					// crc 0
-						Data[ind] = datacrc8[0];
-					break;
-					case 39:					// crc 1
-						Data[ind] = datacrc8[1];
-					break;
-					case 40:					// crc 2
-						Data[ind] = datacrc8[2];
-					break;
-					case 41:					// crc 3
-						Data[ind] = datacrc8[3];
-					break;
-					case 42:					// crc 4
-						Data[ind] = datacrc8[4];
-					break;
-					case 43:					// crc 5
-						Data[ind] = datacrc8[5];
-					break;
-					case 44:					// crc 6
-						Data[ind] = datacrc8[6];
-					break;
-					case 45:					// crc 7
-						Data[ind] = datacrc8[7];
-					break;
-					case 49:					// com 0
+					case 38-15:					// com 0
 						Data[ind] = datacom2m[0];
 					break;
-					case 50:					// com 1
+					case 39-15:					// com 1
 						Data[ind] = datacom2m[1];
 					break;
-					case 51:					// com 2
+					case 40-15:					// com 2
 						Data[ind] = datacom2m[2];
 					break;
-					case 52:					// com 3
+					case 41-15:					// com 3
 						Data[ind] = datacom2m[3];
 					break;
-					case 53:					// com 4
+					case 42-15:					// com 4
 						Data[ind] = datacom2m[4];
 					break;
-					case 54:					// com 5
+					case 43-15:					// com 5
 						Data[ind] = datacom2m[5];
 					break;
-					case 55:					// com 6
+					case 44-15:					// com 6
 						Data[ind] = datacom2m[6];
 					break;
-					case 56:					// com 7
+					case 45-15:					// com 7
 						Data[ind] = datacom2m[7];
 					break;
+					case 49-15:					// crc 0
+						Data[ind] = datacrc8[0];
+					break;
+					case 50-15:					// crc 1
+						Data[ind] = datacrc8[1];
+					break;
+					case 51-15:					// crc 2
+						Data[ind] = datacrc8[2];
+					break;
+					case 52-15:					// crc 3
+						Data[ind] = datacrc8[3];
+					break;
+					case 53-15:					// crc 4
+						Data[ind] = datacrc8[4];
+					break;
+					case 54-15:					// crc 5
+						Data[ind] = datacrc8[5];
+					break;
+					case 55-15:					// crc 6
+						Data[ind] = datacrc8[6];
+					break;
+					case 56-15:					// crc 7
+						Data[ind] = datacrc8[7];
+					break;
+					
 				}
 	}
 			break;
@@ -1456,7 +1493,7 @@ void Parsing(uint32_t data, uint8_t command)
 		// обработка данных
 void ProcData(void)
 	{
-		
+		TIM6 -> EGR  |= TIM_EGR_UG;
 		//Parsing(mData[m-1]);
 		
 		
@@ -1496,16 +1533,16 @@ void ProcData(void)
 		
 		Position = ~Position;*/
 		// расчет и установка длительностей
-		if(State != pwmSTOP)
-		{
-			if(psk != aCNT)
-			{
-				aCNT = psk;
+//		if(State != pwmSTOP)
+//		{
+//			if(psk != aCNT)
+//			{
+//				aCNT = psk;
 				TimingCalc();
 				SetTiming();
-			}
+//			}
 			
-		}
+//		}
 		
 		
 		// остановка/запуск шим
@@ -1535,6 +1572,8 @@ void ProcData(void)
 void Diag(void)
 	{
 		StopDiag = 0;
+		Diag_TimeOut_en = 1;
+		Diag_TimeOut_cnt = 0;
 		Tick = SystemCoreClock/((TIM1->PSC+1)*2*1000000);
 		freq = (f1 + f2)/2;																					// стартова€ частота
 		DeathTime = 2*DeathTime_u*Tick+Overlap_u*Tick;							// расчет дедтайма
@@ -1546,6 +1585,17 @@ void Diag(void)
 		diag_mean_cnt = 0;
 		n = 0;
 		CalibrateMean();
+		
+		// очистка буферов фильтра с плавающим средним
+		memset(I1ab,0,sizeof(I1ab));
+		memset(I2ab,0,sizeof(I2ab));
+		memset(I3ab,0,sizeof(I3ab));
+		memset(I4ab,0,sizeof(I4ab));
+		
+		memset(P1ab,0,sizeof(P1ab));
+		memset(P2ab,0,sizeof(P2ab));
+		memset(P3ab,0,sizeof(P3ab));
+		memset(P4ab,0,sizeof(P4ab));
 		
 		SoftStart = OFF;//
 		
@@ -2466,17 +2516,26 @@ void GetVoltage(void)
 				StopPWM();
 		}
 		
+		// защита от делени€ на ноль
+		if(DiagCNT == 0)
+			DiagCNT = 1;
+		
 		if(SETUP.ant[0] == 1)
 		{
-			STATUS.ia[0] = 0.354f*I1a/DiagCNT;
+			if(TransMode == DIAG)
+				STATUS.ia[0] = 0.354f*I1a/DiagCNT;
+			else
+				STATUS.ia[0] = MAfilter(I1ab, 0.354f*I1a/DiagCNT);
 			STATUS.im[0] = I1m;
 			
 			if(STATUS.trans_state == 2)
 				STATUS.l[0]  = L1*1000;						//1000 в м√н
 			if(STATUS.trans_state == 2)
 				STATUS.ra[0] = R1a;
-			
-			STATUS.pa[0] = 0.354f*P1a/(DiagCNT*1000);				// в к¬т
+			if(TransMode == DIAG)
+				STATUS.pa[0] = 0.354f*P1a/(DiagCNT*1000);				// в к¬т
+			else
+				STATUS.pa[0] = MAfilter(P1ab, 0.354f*P1a/(DiagCNT*1000));
 			STATUS.pm[0] = P1m/1000;								// в к¬т
 
 			STATUS.c[0]  = C1corr;							// в мк‘
@@ -2494,7 +2553,10 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[1] == 1)
 		{
-			STATUS.ia[1] = 0.354f*I2a/DiagCNT;
+			if(TransMode == DIAG)
+				STATUS.ia[1] = 0.354f*I2a/DiagCNT;
+			else
+				STATUS.ia[1] = MAfilter(I2ab, 0.354f*I2a/DiagCNT);
 			STATUS.im[1] = I2m;
 			
 			if(STATUS.trans_state == 2)
@@ -2502,7 +2564,10 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[1] = R2a;
 			
-			STATUS.pa[1] = 0.354f*P2a/(DiagCNT*1000);
+			if(TransMode == DIAG)
+				STATUS.pa[1] = 0.354f*P2a/(DiagCNT*1000);				// в к¬т
+			else
+				STATUS.pa[1] = MAfilter(P2ab, 0.354f*P2a/(DiagCNT*1000));
 			STATUS.pm[1] = P2m/1000;
 
 			STATUS.c[1]  = C2corr;
@@ -2520,7 +2585,10 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[2] == 1)
 		{
-			STATUS.ia[2] = 0.354f*I3a/DiagCNT;
+			if(TransMode == DIAG)
+				STATUS.ia[2] = 0.354f*I3a/DiagCNT;
+			else
+				STATUS.ia[2] = MAfilter(I3ab, 0.354f*I3a/DiagCNT);
 			STATUS.im[2] = I3m;
 			
 			if(STATUS.trans_state == 2)
@@ -2528,7 +2596,10 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[2] = R3a;
 			
-			STATUS.pa[2] = 0.354f*P3a/(DiagCNT*1000);
+			if(TransMode == DIAG)
+				STATUS.pa[2] = 0.354f*P3a/(DiagCNT*1000);				// в к¬т
+			else
+				STATUS.pa[2] = MAfilter(P3ab, 0.354f*P3a/(DiagCNT*1000));
 			STATUS.pm[2] = P3m/1000;
 
 			STATUS.c[2]  = C3corr;
@@ -2546,7 +2617,10 @@ void GetVoltage(void)
 		
 		if(SETUP.ant[3] == 1)
 		{
-			STATUS.ia[3] = 0.354f*I4a/DiagCNT;
+			if(TransMode == DIAG)
+				STATUS.ia[3] = 0.354f*I4a/DiagCNT;
+			else
+				STATUS.ia[3] = MAfilter(I4ab, 0.354f*I4a/DiagCNT);
 			STATUS.im[3] = I4m;
 			
 			if(STATUS.trans_state == 2)
@@ -2554,7 +2628,10 @@ void GetVoltage(void)
 			if(STATUS.trans_state == 2)
 				STATUS.ra[3] = R4a;
 			
-			STATUS.pa[3] = 0.354f*P4a/(DiagCNT*1000);
+			if(TransMode == DIAG)
+				STATUS.pa[3] = 0.354f*P4a/(DiagCNT*1000);				// в к¬т
+			else
+				STATUS.pa[3] = MAfilter(P4ab, 0.354f*P4a/(DiagCNT*1000));
 			STATUS.pm[3] = P4m/1000;
 
 			STATUS.c[3]  = C4corr;
@@ -2621,6 +2698,35 @@ void GetVoltage(void)
 #endif
 	}
 	
+float MAfilter(float *buff, float data)
+{
+	uint8_t denominator = MA_BUFF_LEN;
+	volatile float outdata = 0;		// выходное значение
+		// кольцевой сдвиг
+	for(uint8_t i = MA_BUFF_LEN-1; i > 0; i--)
+	{
+		buff[i] = buff[i-1];
+	}
+		// запись нового значени€
+		buff[0] = data;
+	
+	// поиск количества нулевых значений буфера
+	
+	for(uint8_t i = 0; i < MA_BUFF_LEN; i++)
+	{
+		if(buff[i] == NULL)
+			denominator--;
+		
+		outdata+=buff[i];			// накопление
+	}
+	
+	if(denominator == 0)
+		denominator = 1;
+	
+	outdata /=denominator;
+	
+	return	outdata;
+}
 		
 	// формирование стуктуры с данными
 	void SendPacketUART(void)
@@ -3250,6 +3356,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				HAL_UART_Receive_IT(&huart1,(uint8_t*)&UART2RecvData.cmd, sizeof(UART2RecvData.cmd));
 			}
 			Uart_RX_TimeOut_cnt++;
+		}
+		
+		if(Diag_TimeOut_en == 1)
+		{
+			if(Diag_TimeOut_cnt > 2047)
+			{
+				Diag_TimeOut_en = 0;
+				STATUS.trans_state = 0;
+				StopPWM();
+				SoftStart = ON;//
+				State = pwmBUSY;
+			}
+			
+			Diag_TimeOut_cnt++;
 		}
 	}
 	
