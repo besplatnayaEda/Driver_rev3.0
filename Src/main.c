@@ -74,6 +74,7 @@ uint32_t Tick = 8;							// количество тиков таймера в 1 мкс
 uint8_t  SoftStart = ON;				// плавный запуск вкл/выкл
 uint8_t	 State = pwmSTART;			// состояние передачи 0 - запуск, 1 - передача, 2 - останов
 uint16_t DataLenght = 8;				// длина сообщения
+uint8_t  BaseLenght;						// длина посылки
 uint16_t  Position = 0;					// позиция в сообщении
 uint8_t  Data[MAXDAT];		// данные 
 uint8_t  mData[] = {85, 162, 34, 93, 205, 47, 13, 5};

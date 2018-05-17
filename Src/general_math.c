@@ -28,6 +28,7 @@ extern uint8_t	Trig;
 extern float 		BR;
 extern uint8_t	State;
 extern uint16_t  DataLenght;
+extern uint8_t  BaseLenght;
 extern uint16_t  Position;
 extern uint8_t  Data[];
 extern uint32_t f1;
@@ -1110,7 +1111,6 @@ void Parsing(uint32_t data, uint8_t command)
 	volatile uint8_t datacom[4];
 	volatile uint8_t datacom2m[8];
 	volatile uint8_t datacrc8[8];
-	volatile uint8_t BaseLenght;
 	volatile uint8_t DataR2tmp[MAXDAT];
 	
 	switch(CodeMode){
@@ -1496,8 +1496,9 @@ void ProcData(void)
 		//Parsing(mData[m-1]);
 		
 		
-			STATUS.repeatcur = floorl(Position/DataLenght)+1;
-			STATUS.bitnum = Position - floorl(Position/DataLenght)*(DataLenght/RepeatNum);
+				
+		
+			
 				
 //		if(Position > (DataLenght-1))
 //		{
@@ -1507,6 +1508,18 @@ void ProcData(void)
 //		}
 		if(Position < DataLenght)
 		{
+			// расчет номера текущего повтора и текущего бита
+		if(CodeMode == 2)
+			{
+				STATUS.repeatcur = floorl((Position - START_R2)/BaseLenght) + 1;
+				STATUS.bitnum = ceil(Position - START_R2 - ((STATUS.repeatcur - 1)*BaseLenght) + 1);
+			}
+		else
+			{
+				STATUS.repeatcur = floorl((Position)/BaseLenght)+1;
+				STATUS.bitnum = Position - ((STATUS.repeatcur - 1)*BaseLenght) + 1;
+			}
+			
 		switch(Data[Position]){														// смена частот на битах
 			case 1:
 				psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
