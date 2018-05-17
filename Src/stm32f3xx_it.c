@@ -406,6 +406,7 @@ void TIM1_CC_IRQHandler(void)
 					//if(n==8)
 						n = 2;
 //					HAL_TIM_Base_Stop_IT(&htim7);
+//					TIM1 -> EGR  |= TIM_EGR_UG;
 					CorrectTIM();
 				}
 		break;
@@ -415,6 +416,7 @@ void TIM1_CC_IRQHandler(void)
 					//if(n==8)
 						n = 2;
 //					HAL_TIM_Base_Stop_IT(&htim7);
+//					TIM1 -> EGR  |= TIM_EGR_UG;
 					CorrectTIM();
 				}
 		break;

@@ -1089,8 +1089,6 @@ void ProcDemagnetization(void)
 
 	// парсинг номера в массив
 
-uint8_t crcbuff[4];
-			uint8_t crc8;
 void Parsing(uint32_t data, uint8_t command)
 {
 	if(RepeatNum == 0)
@@ -1103,16 +1101,17 @@ void Parsing(uint32_t data, uint8_t command)
 	//	k - команда
 	//	m	-	MSB
 	
-	uint8_t tind;
+	volatile uint8_t tind;
 	
-	uint8_t	dataBIN[16];
-	uint8_t dataR1[8];
-	uint8_t dataR2[10];
-	uint8_t dataR2m[16];
-	uint8_t datacom[4];
-	uint8_t datacom2m[8];
-	uint8_t datacrc8[8];
-	uint8_t BaseLenght;
+	volatile uint8_t	dataBIN[16];
+	volatile uint8_t dataR1[8];
+	volatile uint8_t dataR2[10];
+	volatile uint8_t dataR2m[16];
+	volatile uint8_t datacom[4];
+	volatile uint8_t datacom2m[8];
+	volatile uint8_t datacrc8[8];
+	volatile uint8_t BaseLenght;
+	volatile uint8_t DataR2tmp[MAXDAT];
 	
 	switch(CodeMode){
 		case 0:									// бинарный 
@@ -1186,7 +1185,7 @@ void Parsing(uint32_t data, uint8_t command)
 							  // s d p
 			BaseLenght = 1+8+2;
 			DataLenght = BaseLenght*RepeatNum;
-			if(DataLenght > MAXDAT)
+			if(DataLenght > (MAXDAT - START_R2))
 				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
 			for(uint8_t i = 0; i < 8; i++)
 				dataR1[i] = (data >> i)&1;
@@ -1253,105 +1252,106 @@ void Parsing(uint32_t data, uint8_t command)
 			for(uint8_t i = 0; i < 4; i++)
 					datacom[i] = (command >> i)&1;
 		
-			// добавил 5 бит стартом перед всей посылкой
-//			Data[0] = 1;
-//			Data[1] = 1;
-//			Data[2] = 1;
-//			Data[3] = 1;
-//			Data[4] = 1;
-			
+
 			for(uint16_t ind = 0; ind < DataLenght; ind++)
 			{
-//				if(ind < 22)
-//					tind = ind - floorl(ind/BaseLenght)*(BaseLenght) - 5;
-//				else
+
 					tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
 				
 				switch(tind){
 					case 0:					// start
-						Data[ind] = START_BIT;
+						DataR2tmp[ind] = START_BIT;
 					break;
-					case 12:					// com 0
-						Data[ind] = datacom[0];
+					case 1:					// com 0
+						DataR2tmp[ind] = datacom[0];
 					break;
-					case 13:					// com 1
-						Data[ind] = datacom[1];
+					case 2:					// com 1
+						DataR2tmp[ind] = datacom[1];
 					break;
-					case 14:					// com 2
-						Data[ind] = datacom[2];
+					case 3:					// com 2
+						DataR2tmp[ind] = datacom[2];
 					break;
-					case 15:					// com 3
-						Data[ind] = datacom[3];
+					case 4:					// com 3
+						DataR2tmp[ind] = datacom[3];
 					break;
-					case 16:					// data 0
-						Data[ind] = dataR2[0];
+					case 5:					// data 0
+						DataR2tmp[ind] = dataR2[0];
 					break;
-					case 17:					// data 1
-						Data[ind] = dataR2[1];
+					case 6:					// data 1
+						DataR2tmp[ind] = dataR2[1];
 					break;
-					case 18:					// data 2
-						Data[ind] = dataR2[2];
+					case 7:					// data 2
+						DataR2tmp[ind] = dataR2[2];
 					break;
 					case 8:					// LSB
-						Data[ind] = MSB;
+						DataR2tmp[ind] = LSB;
 					break;
 					case 9:					// stop
-						Data[ind] = STOP_BIT;
+						DataR2tmp[ind] = STOP_BIT;
 					break;
 					case 10:				// stop
-						Data[ind] = STOP_BIT;
+						DataR2tmp[ind] = STOP_BIT;
 					break;
 					case 11:					// start
-						Data[ind] = START_BIT;
+						DataR2tmp[ind] = START_BIT;
 					break;
-					case 1:					// data 3
-						Data[ind] = dataR2[3];
+					case 12:					// data 3
+						DataR2tmp[ind] = dataR2[3];
 					break;
-					case 2:					// data 4
-						Data[ind] = dataR2[4];
+					case 13:					// data 4
+						DataR2tmp[ind] = dataR2[4];
 					break;
-					case 3:					// data 5
-						Data[ind] = dataR2[5];
+					case 14:					// data 5
+						DataR2tmp[ind] = dataR2[5];
 					break;
-					case 4:					// data 6
-						Data[ind] = dataR2[6];
+					case 15:					// data 6
+						DataR2tmp[ind] = dataR2[6];
 					break;
-					case 5:					// data 7
-						Data[ind] = dataR2[7];
+					case 16:					// data 7
+						DataR2tmp[ind] = dataR2[7];
 					break;
-					case 6:					// data 8
-						Data[ind] = dataR2[8];
+					case 17:					// data 8
+						DataR2tmp[ind] = dataR2[8];
 					break;
-					case 7:					// data 9
-						Data[ind] = dataR2[9];
+					case 18:					// data 9
+						DataR2tmp[ind] = dataR2[9];
 					break;
 					case 19:					// MSB
-						Data[ind] = LSB;
+						DataR2tmp[ind] = MSB;
 					break;
 					case 20:					// stop
-						Data[ind] = STOP_BIT;
+						DataR2tmp[ind] = STOP_BIT;
 					break;
 					case 21:				// stop
-						Data[ind] = STOP_BIT;
+						DataR2tmp[ind] = STOP_BIT;
 					break;}
 				
 					
 			}
+			
+			// сдвиг общей последовательности на START_R2 бит
+			for(uint16_t i = 0; i < (DataLenght + START_R2); i++)
+			{
+				if(i < START_R2)
+					Data[i] = 1;
+				else
+					Data[i] = DataR2tmp[i - START_R2];
+			}
+			
 		break;
 			case 3:									// радиус 2м
 								//	sy s d p s d p s d
-			BaseLenght = ( 0+1+8+2+1+8+2+1+8+2+1+8+2);
-			DataLenght = 15+BaseLenght*RepeatNum;
+			BaseLenght = (15+1+8+2+1+8+2+1+8+2+1+8+2);
+			DataLenght = BaseLenght*RepeatNum;
 			if(DataLenght > MAXDAT)
 				DataLenght = ceil(DataLenght/BaseLenght)*RepeatNum;
 			
-//			uint8_t crcbuff[4];
-//			uint8_t crc8;
+			volatile uint8_t crcbuff[3];
+			volatile uint8_t crc8;
 			
 			crcbuff[0] = data;
 			crcbuff[1] = data >> 8;
 			crcbuff[2] = command;
-			crcbuff[3] = 0;
 			
 			crc8 = CRC8((uint8_t *)&crcbuff, sizeof(crcbuff));
 			
@@ -1365,121 +1365,120 @@ void Parsing(uint32_t data, uint8_t command)
 			for(uint8_t i = 0; i < 8; i++)
 					datacrc8[i] = (crc8 >> i)&1;
 			
-			for(uint8_t i = 0; i < 15; i++)					// начало кадра
-					Data[i] = 1;
+
 			
-			for(uint16_t ind = 15; ind < DataLenght; ind++)		// заполнение буфера передачи
+			for(uint16_t ind = 0; ind < DataLenght; ind++)		// заполнение буфера передачи
 			{
 //				if(ind < 15)
 //					tind = 0;
 //				else
 					tind = ind - floorl(ind/BaseLenght)*(BaseLenght);
 				
-//				if(ind < 15)
-//					Data[ind] = 1;
+				if(tind < 15)
+					Data[ind] = 1;
 				
-				if((tind == 15-15) || (tind == 26-15) || (tind == 37-15) || (tind == 48-15))		// стартовые биты
+				if((tind == 15) || (tind == 26) || (tind == 37) || (tind == 48))		// стартовые биты
 					Data[ind] = START_BIT;
 				
-				if((tind == 24-15) || (tind == 25-15) || (tind == 35-15) || (tind == 36-15) ||
-					 (tind == 46-15) || (tind == 47-15) || (tind == 57-15) || (tind == 58-15))		// стоповые биты
+				if((tind == 24) || (tind == 25) || (tind == 35) || (tind == 36) ||
+					 (tind == 46) || (tind == 47) || (tind == 57) || (tind == 58))		// стоповые биты
 					Data[ind] = STOP_BIT;
 				
 				switch(tind){
-					case 16-15:					// data 0
+					case 16:					// data 0
 						Data[ind] = dataR2m[0];
 					break;
-					case 17-15:					// data 1
+					case 17:					// data 1
 						Data[ind] = dataR2m[1];
 					break;
-					case 18-15:					// data 2
+					case 18:					// data 2
 						Data[ind] = dataR2m[2];
 					break;
-					case 19-15:					// data 3
+					case 19:					// data 3
 						Data[ind] = dataR2m[3];
 					break;
-					case 20-15:					// data 4
+					case 20:					// data 4
 						Data[ind] = dataR2m[4];
 					break;
-					case 21-15:					// data 5
+					case 21:					// data 5
 						Data[ind] = dataR2m[5];
 					break;
-					case 22-15:					// data 6
+					case 22:					// data 6
 						Data[ind] = dataR2m[6];
 					break;
-					case 23-15:					// data 7
+					case 23:					// data 7
 						Data[ind] = dataR2m[7];
 					break;
-					case 27-15:					// data 8
+					case 27:					// data 8
 						Data[ind] = dataR2m[8];
 					break;
-					case 28-15:					// data 9
+					case 28:					// data 9
 						Data[ind] = dataR2m[9];
 					break;
-					case 29-15:					// data 10
+					case 29:					// data 10
 						Data[ind] = dataR2m[10];
 					break;
-					case 30-15:					// data 11
+					case 30:					// data 11
 						Data[ind] = dataR2m[11];
 					break;
-					case 31-15:					// data 12
+					case 31:					// data 12
 						Data[ind] = dataR2m[12];
 					break;
-					case 32-15:					// data 13
+					case 32:					// data 13
 						Data[ind] = dataR2m[13];
 					break;
-					case 33-15:					// data 14
+					case 33:					// data 14
 						Data[ind] = dataR2m[14];
 					break;
-					case 34-15:					// data 15
+					case 34:					// data 15
 						Data[ind] = dataR2m[15];
 					break;
-					case 38-15:					// com 0
+					case 38:					// com 0
 						Data[ind] = datacom2m[0];
 					break;
-					case 39-15:					// com 1
+					case 39:					// com 1
 						Data[ind] = datacom2m[1];
 					break;
-					case 40-15:					// com 2
+					case 40:					// com 2
 						Data[ind] = datacom2m[2];
 					break;
-					case 41-15:					// com 3
+					case 41:					// com 3
 						Data[ind] = datacom2m[3];
 					break;
-					case 42-15:					// com 4
+					case 42:					// com 4
 						Data[ind] = datacom2m[4];
 					break;
-					case 43-15:					// com 5
+					case 43:					// com 5
 						Data[ind] = datacom2m[5];
 					break;
-					case 44-15:					// com 6
+					case 44:					// com 6
 						Data[ind] = datacom2m[6];
 					break;
-					case 45-15:					// com 7
+					case 45:					// com 7
 						Data[ind] = datacom2m[7];
 					break;
-					case 49-15:					// crc 0
+					case 49:					// crc 0
 						Data[ind] = datacrc8[0];
 					break;
-					case 50-15:					// crc 1
+					case 50:					// crc 1
 						Data[ind] = datacrc8[1];
 					break;
-					case 51-15:					// crc 2
+					case 51:					// crc 2
 						Data[ind] = datacrc8[2];
 					break;
-					case 52-15:					// crc 3
+					case 52:					// crc 3
 						Data[ind] = datacrc8[3];
 					break;
-					case 53-15:					// crc 4
+					case 53:					// crc 4
 						Data[ind] = datacrc8[4];
 					break;
-					case 54-15:					// crc 5
+					case 54:					// crc 5
 						Data[ind] = datacrc8[5];
 					break;
-					case 55-15:					// crc 6
+					case 55:					// crc 6
 						Data[ind] = datacrc8[6];
 					break;
-					case 56-15:					// crc 7
+					case 56:					// crc 7
 						Data[ind] = datacrc8[7];
 					break;
 					
@@ -1823,7 +1822,7 @@ void Diag(void)
 	// корректировка момента измерения
 	void CorrectTIM(void)
 	{
-		
+		TIM7 -> EGR  |= TIM_EGR_UG;
 		switch(n)
 		{
 			case 0:
