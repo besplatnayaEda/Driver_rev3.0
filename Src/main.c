@@ -236,19 +236,19 @@ int main(void)
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	tmp = HAL_ADCEx_Calibration_GetValue(&hadc1,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_SetValue(&hadc1,ADC_SINGLE_ENDED,tmp);
-	HAL_Delay(1);
+	HAL_Delay(10);
 	HAL_ADCEx_Calibration_Start(&hadc2,ADC_SINGLE_ENDED);
 	tmp = HAL_ADCEx_Calibration_GetValue(&hadc2,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_SetValue(&hadc2,ADC_SINGLE_ENDED,tmp);
-	HAL_Delay(1);
+	HAL_Delay(10);
 	HAL_ADCEx_Calibration_Start(&hadc3,ADC_SINGLE_ENDED);
 	tmp = HAL_ADCEx_Calibration_GetValue(&hadc3,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_SetValue(&hadc3,ADC_SINGLE_ENDED,tmp);
-	HAL_Delay(1);
+	HAL_Delay(10);
 	HAL_ADCEx_Calibration_Start(&hadc4,ADC_SINGLE_ENDED);
 	tmp = HAL_ADCEx_Calibration_GetValue(&hadc4,ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_SetValue(&hadc4,ADC_SINGLE_ENDED,tmp);
-	HAL_Delay(1);
+	HAL_Delay(10);
 	
 	
 	

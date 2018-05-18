@@ -1639,11 +1639,13 @@ void Diag(void)
 	void ProcTestTag(void)
 	{
 
-			STATUS.repeatcur = floorl(Position/DataLenght)+1;
-			STATUS.bitnum = Position - floorl(Position/DataLenght)*(DataLenght/RepeatNum);
+			
 
 		if(Position < DataLenght)
 		{
+			STATUS.repeatcur = floorl((Position)/BaseLenght)+1;
+				STATUS.bitnum = Position - ((STATUS.repeatcur - 1)*BaseLenght) + 1;
+			
 		switch(Data[Position]){														// смена частот на битах
 			case 1:
 				psk = SystemCoreClock/((TIM1->PSC+1)*4*f1);
