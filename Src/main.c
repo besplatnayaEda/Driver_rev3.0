@@ -294,9 +294,11 @@ int main(void)
 	STATUS.driver_hw = HARDWARE;
 	STATUS.trans_ok = 1;
 	STATUS.drvenable = 1;
+	STATUS.trans_state = 0;
 	CommandReply(U2CT_DRIVER_FW, 'i', STATUS.driver_fw);
 	CommandReply(U2CT_DRIVER_HW, 'i', STATUS.driver_hw);
 	CommandReply(U2CT_TRANS_OK, 'i', STATUS.trans_ok);
+	CommandReply(U2CT_STATE, 'i', STATUS.trans_state);
 	CommandReply(U2CT_DRVENABLE, 'i', STATUS.drvenable);
 	
 	
