@@ -3372,8 +3372,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 			Uart_RX_TimeOut_cnt++;
 		}
 		
-		if(Diag_TimeOut_en == 1)
+		if((Diag_TimeOut_en == 1) && (TransMode == 2))
 		{
+			Diag_TimeOut_cnt++;
 			if(Diag_TimeOut_cnt > 2047)
 			{
 				Diag_TimeOut_en = 0;
@@ -3382,8 +3383,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				SoftStart = ON;//
 				State = pwmBUSY;
 			}
-			
-			Diag_TimeOut_cnt++;
 		}
 	}
 	

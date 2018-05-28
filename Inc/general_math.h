@@ -29,7 +29,7 @@
 
 // порог контроля антенн
 #define FUSE				400e-3f				// замыкание
-#define BREAK				1e-3f		// обрыв
+#define BREAK				10e-3f		// обрыв
 
 #define MEAN_CNT		1000		// усреднение 
 #define MA_BUFF_LEN	10			// размер буфера скользящего среднего

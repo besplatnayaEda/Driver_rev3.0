@@ -159,7 +159,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>ST-LINKIII-KEIL_SWO</Key>
-          <Name>-U39FF6C064B43353948422243 -O2254 -S0 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO19 -TC72000000 -TP21 -TDS8023 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC800 -FN1 -FF0STM32F3xx_256.FLM -FS08000000 -FL040000 -FP0($$Device:STM32F303CC$Flash\STM32F3xx_256.FLM)</Name>
+          <Name>-U38FF66064B46373142440343 -O2254 -S0 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO19 -TC72000000 -TP21 -TDS8023 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO31 -FD20000000 -FC800 -FN1 -FF0STM32F3xx_256.FLM -FS08000000 -FL040000 -FP0($$Device:STM32F303CC$Flash\STM32F3xx_256.FLM)</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
       <Breakpoint/>
@@ -367,7 +367,7 @@
         <Ww>
           <count>40</count>
           <WinNumber>1</WinNumber>
-          <ItemText>alarm_pause_cnt</ItemText>
+          <ItemText>alarm_pause_cnt,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>41</count>
@@ -529,6 +529,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>DataLenght,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>73</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Diag_TimeOut_cnt,0x0A</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -537,14 +542,6 @@
           <ItemText>Data,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
-      <MemoryWindow1>
-        <Mm>
-          <WinNumber>1</WinNumber>
-          <SubType>0</SubType>
-          <ItemText>ADR_START</ItemText>
-          <AccSizeX>0</AccSizeX>
-        </Mm>
-      </MemoryWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
