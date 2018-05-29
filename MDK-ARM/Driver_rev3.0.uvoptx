@@ -534,6 +534,16 @@
           <WinNumber>1</WinNumber>
           <ItemText>Diag_TimeOut_cnt,0x0A</ItemText>
         </Ww>
+        <Ww>
+          <count>74</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>StartSend</ItemText>
+        </Ww>
+        <Ww>
+          <count>75</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\Driver_rev3\../Src/general_math.c\alarm_trans_cnt,0x0A</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
