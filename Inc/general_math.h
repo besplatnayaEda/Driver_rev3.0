@@ -60,7 +60,7 @@
 #define Effbit 4096
 
 // версия ПО и платы драйвера
-#define FIRMWARE	0x9293U		// ver 18.5.18-3
+#define FIRMWARE	0xEA93U		// ver 29.5.18-3
 #define HARDWARE	0x2991U
 
 // количесиво витков в обмотках
