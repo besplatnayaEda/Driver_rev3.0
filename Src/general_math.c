@@ -3384,28 +3384,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				SoftStart = ON;//
 				State = pwmBUSY;
 				
-				if((StartSend == 1)&&(StopDiag == 1))
-	{
-		StartSend = 0;
-		switch(SendForm)
-		{
-			case 0:
-				SendData(tmpData);
-			break;
-			case 1:
-				SendComand(tmpComand);
-			break;
-			case 2:
-				SendComandnData(tmpData, tmpComand);
-			break;
-			case 3:
-				SendAlarm(tmpData);
-			break;
-			case 4:
-				TestTag(tmpData);
-			break;
-		}
-	}
+//				if((StartSend == 1)&&(StopDiag == 1))
+//	{
+//		StartSend = 0;
+//		switch(SendForm)
+//		{
+//			case 0:
+//				SendData(tmpData);
+//			break;
+//			case 1:
+//				SendComand(tmpComand);
+//			break;
+//			case 2:
+//				SendComandnData(tmpData, tmpComand);
+//			break;
+//			case 3:
+//				SendAlarm(tmpData);
+//			break;
+//			case 4:
+//				TestTag(tmpData);
+//			break;
+//		}
+//	}
 			}
 		}
 	}
